@@ -34,27 +34,17 @@ function populateCustomers() {
 populateCustomers()
 
 app.get('/', (req, res) => {
-  let queryRows
-  
-  await getRows().then(function () {
-    console.log('queryRows before render is ' + queryRows)
+  getRows().then(function ([rows, fields]) {
     res.render('pages/index', {
-      query: queryRows,
+      query: rows,
       test: "testing"
     });
   })
 })
 
 async function getRows() {
-  connection.query('SELECT * FROM customers', (err, rows, fields) => {
-    if (err) throw err
-    rows.forEach(row => {
-      console.log(`${row.name} lives in ${row.address}`)
-    });
-    queryRows = rows;
-
-    console.log('queryRows inside query is ' + queryRows)
-  })
+  let [rows, fields] = await pool.execute('SELECT * FROM customers', [1, 1]);
+  return [rows, fields];
 }
 
 app.listen(port, () => {
