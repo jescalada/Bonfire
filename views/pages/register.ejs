@@ -10,20 +10,16 @@
 </header>
 
 <main>
-  <div class="jumbotron">
-    <h1>This is great</h1>
-    <p>Welcome to templating using EJS</p>
-    
-    <p><%= test %></p>
-    <ul>
-        <% query.forEach(function(row) { %>
-          <li>
-            <strong><%= row.name %></strong>
-            lives in <%= row.address %>
-          </li>
-        <% }); %>
-      </ul>
-  </div>
+    <div class="jumbotron">
+        <h1>Register</h1>
+        <form>
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username"><br><br>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password"><br><br>
+            <input type="submit" value="Submit">
+        </form>
+      </div>
 </main>
 
 <footer>
