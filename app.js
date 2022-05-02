@@ -31,11 +31,32 @@ function populateCustomers() {
   pool.query(sql);
 }
 
-populateCustomers()
+populateCustomers();
 
+// Should serve the landing page
 app.get('/', (req, res) => {
   getRows().then(function ([rows, fields]) {
     res.render('pages/index', {
+      query: rows,
+      test: "testing"
+    });
+  })
+})
+
+// Serves the login page
+app.get('/login', (req, res) => {
+  getRows().then(function ([rows, fields]) {
+    res.render('pages/login', {
+      query: rows,
+      test: "testing"
+    });
+  })
+})
+
+// Serves the registration page
+app.get('/register', (req, res) => {
+  getRows().then(function ([rows, fields]) {
+    res.render('pages/register', {
       query: rows,
       test: "testing"
     });
