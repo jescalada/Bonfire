@@ -60,7 +60,7 @@ function populateCustomers() {
 populateCustomers();
 
 // Should serve the landing page
-app.get('/', (req, res) => {
+app.get('/', checkAuthenticated, (req, res) => {
   getRows().then(function ([rows, fields]) {
     res.render('pages/index', {
       query: rows,
@@ -70,24 +70,24 @@ app.get('/', (req, res) => {
 })
 
 // GET login page
-app.get('/login', (req, res) => {
+app.get('/login', checkNotAuthenticated, (req, res) => {
   res.render('pages/login')
 })
 
 // POST login page
-app.post('/login', passport.authenticate('local', {
+app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
   successRedirect: '/',
   failureRedirect: '/login',
   failureFlash: true
 }))
 
 // GET registration page
-app.get('/register', (req, res) => {
+app.get('/register', checkNotAuthenticated, (req, res) => {
   res.render('pages/register');
 })
 
 // POST login page
-app.post('/register', async (req, res) => {
+app.post('/register', checkNotAuthenticated, async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
     users.push({
@@ -103,6 +103,23 @@ app.post('/register', async (req, res) => {
   }
   console.log(users)
 })
+
+// Middleware function to check if user is authenticated
+function checkAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next() //everything works, just execute the next function
+  }
+  res.redirect('/login')
+}
+
+// Middleware function to check if user is NOT authenticated
+function checkNotAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return res.redirect('/') // If authenticated, redirect them to dashboard
+  }
+  next() // if not authenticated, continue execution
+}
+
 
 async function getRows() {
   let [rows, fields] = await pool.execute('SELECT * FROM customers', [1, 1]);
