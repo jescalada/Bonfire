@@ -15,6 +15,10 @@
     <p>Welcome to templating using EJS</p>
     
     <p>Welcome, <%= username %></p>
+
+    <form action="/logout?_method=DELETE" method="POST">
+      <button type="submit">Log Out</button>
+    </form>
     <ul>
         <% query.forEach(function(row) { %>
           <li>

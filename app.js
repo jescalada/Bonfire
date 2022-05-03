@@ -10,6 +10,7 @@ const bcrypt = require('bcryptjs')
 const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
+const methodOverride = require('method-override')
 
 const initializePassport = require('./passport-config')
 initializePassport(
@@ -33,6 +34,7 @@ app.use(session({
 }))
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(methodOverride('_method'))
 
 // Connection info should be obtained using a .env
 const pool = mysql.createPool({
@@ -102,6 +104,11 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
     res.redirect('/register') // Return to registration page on failure
   }
   console.log(users)
+})
+
+app.delete('/logout', (req, res) => {
+  req.logOut() // This function is set up by passport automatically, clears session and logs user out
+  res.redirect('/login')
 })
 
 // Middleware function to check if user is authenticated
