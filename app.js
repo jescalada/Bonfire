@@ -14,7 +14,8 @@ const session = require('express-session')
 const initializePassport = require('./passport-config')
 initializePassport(
   passport,
-  email =>  users.find(user => user.email === email)
+  email =>  users.find(user => user.email === email), // findUserByEmail
+  id =>  users.find(user => user.id === id) // findUserById
 )
 
 const app = express()
@@ -63,7 +64,7 @@ app.get('/', (req, res) => {
   getRows().then(function ([rows, fields]) {
     res.render('pages/index', {
       query: rows,
-      test: "testing"
+      username: req.user.username
     });
   })
 })
