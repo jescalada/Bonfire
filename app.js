@@ -1,8 +1,21 @@
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config() //Loads in all the environment variables
+}
+
 const express = require('express')
 const path = require('path')
 const mysql = require('mysql2/promise')
 const { get } = require('express/lib/response')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
+const passport = require('passport')
+const flash = require('express-flash')
+const session = require('express-session')
+
+const initializePassport = require('./passport-config')
+initializePassport(
+  passport,
+  email =>  users.find(user => user.email === email)
+)
 
 const app = express()
 const port = 3000
@@ -11,6 +24,14 @@ const users = [] // We put the users in here temporarily, later we integrate it 
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false })) // Tells our application to take the forms and access them from the request object
+app.use(flash())
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+}))
+app.use(passport.initialize())
+app.use(passport.session())
 
 // Connection info should be obtained using a .env
 const pool = mysql.createPool({
@@ -53,9 +74,11 @@ app.get('/login', (req, res) => {
 })
 
 // POST login page
-app.post('/login', (req, res) => {
-  
-})
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/login',
+  failureFlash: true
+}))
 
 // GET registration page
 app.get('/register', (req, res) => {
