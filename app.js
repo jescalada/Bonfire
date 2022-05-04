@@ -15,8 +15,8 @@ const methodOverride = require('method-override')
 const initializePassport = require('./passport-config')
 initializePassport(
   passport,
-  email =>  users.find(user => user.email === email), // findUserByEmail
-  id =>  users.find(user => user.id === id) // findUserById
+  getUserByEmail, // findUserByEmail
+  getUserById // findUserById
 )
 
 const app = express()
@@ -111,8 +111,23 @@ async function getUserByEmail(email) {
 
 // Checks if an id is in the database
 // Returns an object representing a user
-function getUserById(id) {
-
+async function getUserById(id) {
+  var sql = `SELECT * FROM users WHERE user_id='${id}'`;
+  let [rows, fields] = await pool.execute(sql, [1, 1]);
+  let row = rows[0]
+  if (row) {
+    return {
+      user_id: row.user_id,
+      username: row.username,
+      email: row.email,
+      upvotes_received: row.upvotes_received,
+      upvotes_given: row.upvotes_given,
+      encrypted_password: row.encrypted_password,
+      is_admin: row.is_admin,
+    }
+  } else {
+    return null
+  }
 }
 
 // Should serve the landing page
@@ -152,9 +167,6 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
     console.log(err)
     res.redirect('/register') // Return to registration page on failure
   }
-  getAllUsers()
-  console.log(await getUserByEmail(req.body.email))
-  console.log(await getUserByEmail("bazinga"))
 })
 
 app.delete('/logout', (req, res) => {
