@@ -57,9 +57,22 @@ const pool = mysql.createPool({
 //   })
 // }
 
-function addNewUser(username, fullname, encrypted_password, isAdmin) {
-  var sql = `INSERT INTO users (username, fullname, upvotes_received, upvotes_given, encrypted_password, is_admin) values
-  ('${username}', '${fullname}', '0', '0', '${encrypted_password}', ${isAdmin});`;
+// function modifyUserTable() {
+//   var sql = `ALTER TABLE users
+//   ADD email VARCHAR(255);`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createUserTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE users modified.");
+//     });
+//   })
+// }
+
+function addNewUser(username, fullname, email, encrypted_password, isAdmin) {
+  var sql = `INSERT INTO users (username, fullname, email, upvotes_received, upvotes_given, encrypted_password, is_admin) values
+  ('${username}', '${fullname}', '${email}','0', '0', '${encrypted_password}', ${isAdmin});`;
   pool.query(sql);
 }
 
@@ -94,13 +107,13 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 app.post('/register', checkNotAuthenticated, async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    addNewUser(req.body.username, req.body.username, hashedPassword, false)
+    addNewUser(req.body.username, req.body.username, req.body.email, hashedPassword, false)
     res.redirect('/login') // Redirect to login page on success
   } catch(err) {
     console.log(err)
     res.redirect('/register') // Return to registration page on failure
   }
-  console.log(users)
+  getUserByEmail(req.body.email)
 })
 
 app.delete('/logout', (req, res) => {
@@ -123,6 +136,7 @@ function checkNotAuthenticated(req, res, next) {
   }
   next() // if not authenticated, continue execution
 }
+
 
 
 async function getAllUsers() {
