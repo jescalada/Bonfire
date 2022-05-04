@@ -5,35 +5,41 @@ if (process.env.NODE_ENV !== 'production') {
 const express = require('express')
 const path = require('path')
 const mysql = require('mysql2/promise')
-const { get } = require('express/lib/response')
 const bcrypt = require('bcryptjs')
 const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
-
 const initializePassport = require('./passport-config')
+// Initialize the passport
 initializePassport(
-  passport,
-  getUserByEmail, // findUserByEmail
-  getUserById // findUserById
+  passport, // Passport object
+  getUserByEmail, // A function that gets the user by email (unique identifier for user)
+  getUserById // A function that gets the user by id (HIDDEN unique identifier)
 )
 
 const app = express()
 const port = 3000
 
-const users = [] // We put the users in here temporarily, later we integrate it to the database
-
+// Tells our app that we want to use ejs as a view engine
 app.set('view engine', 'ejs');
-app.use(express.urlencoded({ extended: false })) // Tells our application to take the forms and access them from the request object
+
+// Tells our app to take the forms and access them from the request object
+app.use(express.urlencoded({ extended: false }))
+
+// Tells our app to use flash and session (these are helper modules for authentication) 
 app.use(flash())
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false
 }))
+
+// Tells our app to use some authentication functions
 app.use(passport.initialize())
 app.use(passport.session())
+
+// Tells our app to override some methods, so we can execute delete requests as POST instead from the HTML
 app.use(methodOverride('_method'))
 
 // Connection info should be obtained using a .env
@@ -45,43 +51,7 @@ const pool = mysql.createPool({
   database: 'bonfire-db'
 })
 
-// function createUserTable() {
-//   var sql = `CREATE TABLE users (user_id BIGINT NOT NULL AUTO_INCREMENT, username VARCHAR(31) NOT NULL, email VARCHAR(255), upvotes_received BIGINT, upvotes_given BIGINT, encrypted_password VARCHAR(255) NOT NULL, is_admin BOOLEAN NOT NULL, PRIMARY KEY (user_id))`;
-//   connection.connect(function(err) {
-//     if (err) throw err;
-//     console.log("Connected at createUserTable.");
-//     connection.query(sql, function (err, result) {
-//       if (err) throw err;
-//       console.log("TABLE users created.");
-//     });
-//   })
-// }
-
-// function dropUserTable() {
-//   var sql = `DROP TABLE users`
-//     connection.connect(function(err) {
-//     if (err) throw err;
-//     console.log("Connected at createUserTable.");
-//     connection.query(sql, function (err, result) {
-//       if (err) throw err;
-//       console.log("TABLE users dropped.");
-//     });
-//   })
-// }
-
-// function modifyUserTable() {
-//   var sql = `ALTER TABLE users
-//   DROP COLUMN fullname;`;
-//   connection.connect(function(err) {
-//     if (err) throw err;
-//     console.log("Connected at createUserTable.");
-//     connection.query(sql, function (err, result) {
-//       if (err) throw err;
-//       console.log("TABLE users modified.");
-//     });
-//   })
-// }
-
+// Connects to the database and adds a new user entry
 function addNewUser(username, email, encrypted_password, isAdmin) {
   var sql = `INSERT INTO users (username, email, upvotes_received, upvotes_given, encrypted_password, is_admin) values
   ('${username}', '${email}','0', '0', '${encrypted_password}', ${isAdmin});`;
@@ -89,7 +59,7 @@ function addNewUser(username, email, encrypted_password, isAdmin) {
 }
 
 // Checks if an email is in the database
-// Returns an object representing a user
+// Returns an object representing a user, or null
 async function getUserByEmail(email) {
   var sql = `SELECT * FROM users WHERE email='${email}'`;
   let [rows, fields] = await pool.execute(sql, [1, 1]);
@@ -110,7 +80,7 @@ async function getUserByEmail(email) {
 }
 
 // Checks if an id is in the database
-// Returns an object representing a user
+// Returns an object representing a user or null
 async function getUserById(id) {
   var sql = `SELECT * FROM users WHERE user_id='${id}'`;
   let [rows, fields] = await pool.execute(sql, [1, 1]);
@@ -130,9 +100,8 @@ async function getUserById(id) {
   }
 }
 
-// Should serve the landing page
+// GET landing page. Currently it gets all the users from the database, for debugging purposes.
 app.get('/', checkAuthenticated, (req, res) => {
-  console.log("User is... " + req.user.body)
   getAllUsers().then(function ([rows, fields]) {
     res.render('pages/index', {
       query: rows,
@@ -170,6 +139,7 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
   }
 })
 
+// Logout route. Can be hit using a POST
 app.delete('/logout', (req, res) => {
   req.logOut() // This function is set up by passport automatically, clears session and logs user out
   res.redirect('/login')
@@ -191,12 +161,57 @@ function checkNotAuthenticated(req, res, next) {
   next() // if not authenticated, continue execution
 }
 
+// Gets all the users from the database. Returns a weird SQL object thingy.
 async function getAllUsers() {
   let [rows, fields] = await pool.execute('SELECT * FROM users', [1, 1]);
-  console.log(rows);
   return [rows, fields];
 }
 
+// Tells our app to listen to a certain port
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
+
+// Connects to the database and creates a user table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function createUserTable() {
+//   var sql = `CREATE TABLE users (user_id BIGINT NOT NULL AUTO_INCREMENT, username VARCHAR(31) NOT NULL, email VARCHAR(255), upvotes_received BIGINT, upvotes_given BIGINT, encrypted_password VARCHAR(255) NOT NULL, is_admin BOOLEAN NOT NULL, PRIMARY KEY (user_id))`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createUserTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE users created.");
+//     });
+//   })
+// }
+
+// Connects to the database and drops the user table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function dropUserTable() {
+//   var sql = `DROP TABLE users`
+//     connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createUserTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE users dropped.");
+//     });
+//   })
+// }
+
+// Connects to the database and modifies the user table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function modifyUserTable() {
+//   var sql = `ALTER TABLE users
+//   DROP COLUMN fullname;`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createUserTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE users modified.");
+//     });
+//   })
+// }
