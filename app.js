@@ -76,6 +76,22 @@ function addNewUser(username, fullname, email, encrypted_password, isAdmin) {
   pool.query(sql);
 }
 
+// Checks if an email is in the database
+// Returns an object representing a user
+async function getUserByEmail(email) {
+  var sql = `SELECT * FROM users WHERE email='${email}'`;
+  let [rows, fields] = await pool.execute(sql, [1, 1]);
+  rows.forEach(row => {
+    console.log(`Username: ${row.username}\tEmail: ${row.email}\tPassword: ${row.encrypted_password}`);
+  })
+}
+
+// Checks if an id is in the database
+// Returns an object representing a user
+function getUserById(id) {
+
+}
+
 // Should serve the landing page
 app.get('/', checkAuthenticated, (req, res) => {
   getAllUsers().then(function ([rows, fields]) {
