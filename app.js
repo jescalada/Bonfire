@@ -15,8 +15,8 @@ const methodOverride = require('method-override')
 const initializePassport = require('./passport-config')
 initializePassport(
   passport,
-  email =>  users.find(user => user.email === email), // findUserByEmail
-  id =>  users.find(user => user.id === id) // findUserById
+  getUserByEmail, // findUserByEmail
+  getUserById // findUserById
 )
 
 const app = express()
@@ -45,25 +45,95 @@ const pool = mysql.createPool({
   database: 'bonfire-db'
 })
 
-function createTable() {
-  var sql = "CREATE TABLE customers (name VARCHAR(255), address VARCHAR(255))";
-  pool.query(sql, function (err, result) {
-    if (err) throw err;
-    console.log("Table customers created");
-  });
-}
+// function createUserTable() {
+//   var sql = `CREATE TABLE users (user_id BIGINT NOT NULL AUTO_INCREMENT, username VARCHAR(31) NOT NULL, email VARCHAR(255), upvotes_received BIGINT, upvotes_given BIGINT, encrypted_password VARCHAR(255) NOT NULL, is_admin BOOLEAN NOT NULL, PRIMARY KEY (user_id))`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createUserTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE users created.");
+//     });
+//   })
+// }
 
-function populateCustomers() {
-  let randomNum = Math.floor(Math.random() * 1000);
-  var sql = `INSERT INTO customers (name, address) values ('Juan${randomNum}', '${randomNum} Testing St');`;
+// function dropUserTable() {
+//   var sql = `DROP TABLE users`
+//     connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createUserTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE users dropped.");
+//     });
+//   })
+// }
+
+// function modifyUserTable() {
+//   var sql = `ALTER TABLE users
+//   DROP COLUMN fullname;`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createUserTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE users modified.");
+//     });
+//   })
+// }
+
+function addNewUser(username, email, encrypted_password, isAdmin) {
+  var sql = `INSERT INTO users (username, email, upvotes_received, upvotes_given, encrypted_password, is_admin) values
+  ('${username}', '${email}','0', '0', '${encrypted_password}', ${isAdmin});`;
   pool.query(sql);
 }
 
-populateCustomers();
+// Checks if an email is in the database
+// Returns an object representing a user
+async function getUserByEmail(email) {
+  var sql = `SELECT * FROM users WHERE email='${email}'`;
+  let [rows, fields] = await pool.execute(sql, [1, 1]);
+  let row = rows[0]
+  if (row) {
+    return {
+      user_id: row.user_id,
+      username: row.username,
+      email: row.email,
+      upvotes_received: row.upvotes_received,
+      upvotes_given: row.upvotes_given,
+      encrypted_password: row.encrypted_password,
+      is_admin: row.is_admin,
+    }
+  } else {
+    return null
+  }
+}
+
+// Checks if an id is in the database
+// Returns an object representing a user
+async function getUserById(id) {
+  var sql = `SELECT * FROM users WHERE user_id='${id}'`;
+  let [rows, fields] = await pool.execute(sql, [1, 1]);
+  let row = rows[0]
+  if (row) {
+    return {
+      user_id: row.user_id,
+      username: row.username,
+      email: row.email,
+      upvotes_received: row.upvotes_received,
+      upvotes_given: row.upvotes_given,
+      encrypted_password: row.encrypted_password,
+      is_admin: row.is_admin,
+    }
+  } else {
+    return null
+  }
+}
 
 // Should serve the landing page
 app.get('/', checkAuthenticated, (req, res) => {
-  getRows().then(function ([rows, fields]) {
+  console.log("User is... " + req.user.body)
+  getAllUsers().then(function ([rows, fields]) {
     res.render('pages/index', {
       query: rows,
       username: req.user.username
@@ -92,18 +162,12 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 app.post('/register', checkNotAuthenticated, async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    users.push({
-      id: Date.now().toString(),
-      username: req.body.username,
-      email: req.body.email,
-      password: hashedPassword
-    })
+    addNewUser(req.body.username, req.body.email, hashedPassword, false)
     res.redirect('/login') // Redirect to login page on success
   } catch(err) {
-    console.log(err);
+    console.log(err)
     res.redirect('/register') // Return to registration page on failure
   }
-  console.log(users)
 })
 
 app.delete('/logout', (req, res) => {
@@ -127,9 +191,9 @@ function checkNotAuthenticated(req, res, next) {
   next() // if not authenticated, continue execution
 }
 
-
-async function getRows() {
-  let [rows, fields] = await pool.execute('SELECT * FROM customers', [1, 1]);
+async function getAllUsers() {
+  let [rows, fields] = await pool.execute('SELECT * FROM users', [1, 1]);
+  console.log(rows);
   return [rows, fields];
 }
 

@@ -3,14 +3,14 @@ const bcrypt = require('bcryptjs')
 
 function initialize(passport, getUserByEmail, getUserById) {
     const authenticateUser = async (email, password, done) => {
-        const user = getUserByEmail(email)
-        if (user == null) {
+        let user = await getUserByEmail(email)
+        if (!user) {
             return done(null, false, {message: 'No user with that email'}) // First parameter should be err
         }
 
         try {
             // Password matched
-            const comparison = await bcrypt.compare(password, user.password)
+            const comparison = await bcrypt.compare(password, user.encrypted_password)
             if (comparison) {
                 return done(null, user)
                 // Password did not match
@@ -23,9 +23,11 @@ function initialize(passport, getUserByEmail, getUserById) {
     }
 
     passport.use(new LocalStrategy({ usernameField: 'email' }, authenticateUser))
-    passport.serializeUser((user, done) => done(null, user.id))
-    passport.deserializeUser((id, done) => {
-        done(null, getUserById(id))
+    passport.serializeUser((user, done) => {
+        done(null, user.user_id)
+    })
+    passport.deserializeUser(async (id, done) => {
+        done(null, await getUserById(id))
     })
 }
 
