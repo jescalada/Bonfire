@@ -65,7 +65,7 @@ function addNewUser(username, fullname, encrypted_password, isAdmin) {
 
 // Should serve the landing page
 app.get('/', checkAuthenticated, (req, res) => {
-  getRows().then(function ([rows, fields]) {
+  getAllUsers().then(function ([rows, fields]) {
     res.render('pages/index', {
       query: rows,
       username: req.user.username
@@ -94,15 +94,10 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 app.post('/register', checkNotAuthenticated, async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    users.push({
-      id: Date.now().toString(),
-      username: req.body.username,
-      email: req.body.email,
-      password: hashedPassword
-    })
+    addNewUser(req.body.username, req.body.username, hashedPassword, false)
     res.redirect('/login') // Redirect to login page on success
   } catch(err) {
-    console.log(err);
+    console.log(err)
     res.redirect('/register') // Return to registration page on failure
   }
   console.log(users)
@@ -130,8 +125,8 @@ function checkNotAuthenticated(req, res, next) {
 }
 
 
-async function getRows() {
-  let [rows, fields] = await pool.execute('SELECT * FROM customers', [1, 1]);
+async function getAllUsers() {
+  let [rows, fields] = await pool.execute('SELECT * FROM users', [1, 1]);
   return [rows, fields];
 }
 
