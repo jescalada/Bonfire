@@ -22,8 +22,8 @@
     <ul>
         <% query.forEach(function(row) { %>
           <li>
-            <strong><%= row.name %></strong>
-            lives in <%= row.address %>
+            <strong><%= row.username %></strong>
+            - <%= row.email %> - Upvotes Received: <%= row.upvotes_received %> - Upvotes Given: <%= row.upvotes_received %>
           </li>
         <% }); %>
       </ul>
