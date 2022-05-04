@@ -45,21 +45,23 @@ const pool = mysql.createPool({
   database: 'bonfire-db'
 })
 
-function createTable() {
-  var sql = "CREATE TABLE customers (name VARCHAR(255), address VARCHAR(255))";
-  pool.query(sql, function (err, result) {
-    if (err) throw err;
-    console.log("Table customers created");
-  });
-}
+// function createUserTable() {
+//   var sql = `CREATE TABLE users (user_id BIGINT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(31) NOT NULL, fullname VARCHAR(255), upvotes_received BIGINT, upvotes_given BIGINT, encrypted_password VARCHAR(255) NOT NULL, is_admin BOOLEAN NOT NULL)`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createUserTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE users created.");
+//     });
+//   })
+// }
 
-function populateCustomers() {
-  let randomNum = Math.floor(Math.random() * 1000);
-  var sql = `INSERT INTO customers (name, address) values ('Juan${randomNum}', '${randomNum} Testing St');`;
+function addNewUser(username, fullname, encrypted_password, isAdmin) {
+  var sql = `INSERT INTO users (username, fullname, upvotes_received, upvotes_given, encrypted_password, is_admin) values
+  ('${username}', '${fullname}', '0', '0', '${encrypted_password}', ${isAdmin});`;
   pool.query(sql);
 }
-
-populateCustomers();
 
 // Should serve the landing page
 app.get('/', checkAuthenticated, (req, res) => {
