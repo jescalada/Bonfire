@@ -44,22 +44,34 @@ const pool = mysql.createPool({
   password: 'Rocco123',
   database: 'bonfire-db'
 })
+/*
+function createUserTable() {
+  var sql = `CREATE TABLE users (user_id BIGINT NOT NULL AUTO_INCREMENT, username VARCHAR(31) NOT NULL, email VARCHAR(255), upvotes_received BIGINT, upvotes_given BIGINT, encrypted_password VARCHAR(255) NOT NULL, is_admin BOOLEAN NOT NULL, PRIMARY KEY (user_id))`;
+  connection.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected at createUserTable.");
+    connection.query(sql, function (err, result) {
+      if (err) throw err;
+      console.log("TABLE users created.");
+    });
+  })
+}
 
-// function createUserTable() {
-//   var sql = `CREATE TABLE users (user_id BIGINT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(31) NOT NULL, fullname VARCHAR(255), upvotes_received BIGINT, upvotes_given BIGINT, encrypted_password VARCHAR(255) NOT NULL, is_admin BOOLEAN NOT NULL)`;
-//   connection.connect(function(err) {
-//     if (err) throw err;
-//     console.log("Connected at createUserTable.");
-//     connection.query(sql, function (err, result) {
-//       if (err) throw err;
-//       console.log("TABLE users created.");
-//     });
-//   })
-// }
-
+function dropUserTable() {
+  var sql = `DROP TABLE users`
+    connection.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected at createUserTable.");
+    connection.query(sql, function (err, result) {
+      if (err) throw err;
+      console.log("TABLE users dropped.");
+    });
+  })
+}
+*/
 // function modifyUserTable() {
 //   var sql = `ALTER TABLE users
-//   ADD email VARCHAR(255);`;
+//   DROP COLUMN fullname;`;
 //   connection.connect(function(err) {
 //     if (err) throw err;
 //     console.log("Connected at createUserTable.");
@@ -157,6 +169,7 @@ function checkNotAuthenticated(req, res, next) {
 
 async function getAllUsers() {
   let [rows, fields] = await pool.execute('SELECT * FROM users', [1, 1]);
+  console.log(rows);
   return [rows, fields];
 }
 
