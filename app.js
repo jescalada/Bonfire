@@ -132,6 +132,7 @@ async function getUserById(id) {
 
 // Should serve the landing page
 app.get('/', checkAuthenticated, (req, res) => {
+  console.log("User is... " + req.user.body)
   getAllUsers().then(function ([rows, fields]) {
     res.render('pages/index', {
       query: rows,
