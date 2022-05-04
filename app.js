@@ -44,31 +44,31 @@ const pool = mysql.createPool({
   password: 'Rocco123',
   database: 'bonfire-db'
 })
-/*
-function createUserTable() {
-  var sql = `CREATE TABLE users (user_id BIGINT NOT NULL AUTO_INCREMENT, username VARCHAR(31) NOT NULL, email VARCHAR(255), upvotes_received BIGINT, upvotes_given BIGINT, encrypted_password VARCHAR(255) NOT NULL, is_admin BOOLEAN NOT NULL, PRIMARY KEY (user_id))`;
-  connection.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected at createUserTable.");
-    connection.query(sql, function (err, result) {
-      if (err) throw err;
-      console.log("TABLE users created.");
-    });
-  })
-}
 
-function dropUserTable() {
-  var sql = `DROP TABLE users`
-    connection.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected at createUserTable.");
-    connection.query(sql, function (err, result) {
-      if (err) throw err;
-      console.log("TABLE users dropped.");
-    });
-  })
-}
-*/
+// function createUserTable() {
+//   var sql = `CREATE TABLE users (user_id BIGINT NOT NULL AUTO_INCREMENT, username VARCHAR(31) NOT NULL, email VARCHAR(255), upvotes_received BIGINT, upvotes_given BIGINT, encrypted_password VARCHAR(255) NOT NULL, is_admin BOOLEAN NOT NULL, PRIMARY KEY (user_id))`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createUserTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE users created.");
+//     });
+//   })
+// }
+
+// function dropUserTable() {
+//   var sql = `DROP TABLE users`
+//     connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createUserTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE users dropped.");
+//     });
+//   })
+// }
+
 // function modifyUserTable() {
 //   var sql = `ALTER TABLE users
 //   DROP COLUMN fullname;`;
@@ -82,9 +82,9 @@ function dropUserTable() {
 //   })
 // }
 
-function addNewUser(username, fullname, email, encrypted_password, isAdmin) {
-  var sql = `INSERT INTO users (username, fullname, email, upvotes_received, upvotes_given, encrypted_password, is_admin) values
-  ('${username}', '${fullname}', '${email}','0', '0', '${encrypted_password}', ${isAdmin});`;
+function addNewUser(username, email, encrypted_password, isAdmin) {
+  var sql = `INSERT INTO users (username, email, upvotes_received, upvotes_given, encrypted_password, is_admin) values
+  ('${username}', '${email}','0', '0', '${encrypted_password}', ${isAdmin});`;
   pool.query(sql);
 }
 
@@ -93,9 +93,20 @@ function addNewUser(username, fullname, email, encrypted_password, isAdmin) {
 async function getUserByEmail(email) {
   var sql = `SELECT * FROM users WHERE email='${email}'`;
   let [rows, fields] = await pool.execute(sql, [1, 1]);
-  rows.forEach(row => {
-    console.log(`Username: ${row.username}\tEmail: ${row.email}\tPassword: ${row.encrypted_password}`);
-  })
+  let row = rows[0]
+  if (row) {
+    return {
+      user_id: row.user_id,
+      username: row.username,
+      email: row.email,
+      upvotes_received: row.upvotes_received,
+      upvotes_given: row.upvotes_given,
+      encrypted_password: row.encrypted_password,
+      is_admin: row.is_admin,
+    }
+  } else {
+    return null
+  }
 }
 
 // Checks if an id is in the database
@@ -135,13 +146,15 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 app.post('/register', checkNotAuthenticated, async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    addNewUser(req.body.username, req.body.username, req.body.email, hashedPassword, false)
+    addNewUser(req.body.username, req.body.email, hashedPassword, false)
     res.redirect('/login') // Redirect to login page on success
   } catch(err) {
     console.log(err)
     res.redirect('/register') // Return to registration page on failure
   }
-  getUserByEmail(req.body.email)
+  getAllUsers()
+  console.log(await getUserByEmail(req.body.email))
+  console.log(await getUserByEmail("bazinga"))
 })
 
 app.delete('/logout', (req, res) => {
@@ -164,8 +177,6 @@ function checkNotAuthenticated(req, res, next) {
   }
   next() // if not authenticated, continue execution
 }
-
-
 
 async function getAllUsers() {
   let [rows, fields] = await pool.execute('SELECT * FROM users', [1, 1]);
