@@ -45,10 +45,10 @@ app.use(methodOverride('_method'))
 // Connection info should be obtained using a .env
 const pool = mysql.createPool({
   connectionLimit: 10,
-  host: '35.193.183.129',
-  user: 'jescalada',
+  host: 'bonfire-1.cdrbnm7ck3cj.us-east-2.rds.amazonaws.com',
+  user: 'admin',
   password: 'Rocco123',
-  database: 'bonfire-db'
+  database: 'bonfire'
 })
 
 // Connects to the database and adds a new user entry
@@ -172,6 +172,19 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
+// Connects to the database (service) and creates a database
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function createDatabase() {
+//   var sql = `CREATE DATABASE bonfire;`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createDB.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("Database bonfire created.");
+//     });
+//   })
+// }
 
 // Connects to the database and creates a user table
 // This function is commented out, because it CANNOT be used with mysql connection pools
