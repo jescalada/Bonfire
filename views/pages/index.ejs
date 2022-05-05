@@ -17,7 +17,7 @@
     <p>Welcome, <%= username %></p>
 
     <form action="/logout?_method=DELETE" method="POST">
-      <button type="submit">Log Out</button>
+      <button type="submit" class="btn btn-primary">Log Out</button>
     </form>
     <ul>
         <% query.forEach(function(row) { %>
