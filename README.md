@@ -2,5 +2,6 @@
 Bonfire is an app for civil discussion of various topics.
 
 Build:  
+add a .env file with the contents SESSION_SECRET=secret  
 npm install  
 nodemon app.js
