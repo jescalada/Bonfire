@@ -102,6 +102,13 @@ async function getUserById(id) {
   }
 }
 
+async function deleteUserById(id) {
+  var sql = `DELETE FROM users WHERE user_id='${id}'`;
+  await pool.execute(sql, [1, 1]);
+}
+
+deleteUserById(2);
+
 // GET landing page. Currently it gets all the users from the database, for debugging purposes.
 app.get('/', checkAuthenticated, (req, res) => {
   getAllUsers().then(function ([rows, fields]) {
@@ -132,6 +139,16 @@ app.get('/admin', checkIfAdminAndAuthenticated, (req, res) => {
       username: req.user.username,
       users: rows
     });
+  })
+})
+
+app.delete('/admin', (req, res) => {
+  deleteUser(req.id_to_delete).then(function() {
+    res.render('pages/admin', {
+      is_admin: req.user.is_admin,
+      username: req.user.username,
+      users: rows
+    })
   })
 })
 
