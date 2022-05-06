@@ -22,6 +22,9 @@
           <li>
             <strong><%= row.username %></strong>
             - <%= row.email %> - Upvotes Received: <%= row.upvotes_received %> - Upvotes Given: <%= row.upvotes_received %>
+            <form action="/admin?_method=DELETE" method="POST">
+                <button type="submit" value="<%= row.user_id %>" name="delete_id" class="btn btn-danger">Delete</button>
+            </form>
           </li>
         <% }); %>
       </ul>
