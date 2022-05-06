@@ -25,7 +25,9 @@ const port = 3000
 app.set('view engine', 'ejs');
 
 // Tells our app to take the forms and access them from the request object
-app.use(express.urlencoded({ extended: false }))
+app.use(express.urlencoded({
+  extended: false
+}))
 
 // Tells our app to use flash and session (these are helper modules for authentication) 
 app.use(flash())
@@ -100,12 +102,18 @@ async function getUserById(id) {
   }
 }
 
+// Deletes the user with then given id from the database
+async function deleteUserById(id) {
+  var sql = `DELETE FROM users WHERE user_id='${id}'`;
+  await pool.execute(sql, [1, 1]);
+}
+
 // GET landing page. Currently it gets all the users from the database, for debugging purposes.
 app.get('/', checkAuthenticated, (req, res) => {
   getAllUsers().then(function ([rows, fields]) {
     res.render('pages/index', {
       query: rows,
-      username: req.user.username
+      user: req.user,
     });
   })
 })
@@ -122,6 +130,23 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
   failureFlash: true
 }))
 
+// GET admin dashboard page
+app.get('/admin', checkIfAdminAndAuthenticated, (req, res) => {
+  getAllUsers().then(function ([rows, fields]) {
+    res.render('pages/admin', {
+      is_admin: req.user.is_admin,
+      username: req.user.username,
+      users: rows
+    });
+  })
+})
+
+app.delete('/admin', (req, res) => {
+  deleteUserById(req.body.delete_id).then(function() {
+    res.redirect('/admin');
+  })
+})
+
 // GET registration page
 app.get('/register', checkNotAuthenticated, (req, res) => {
   res.render('pages/register');
@@ -131,9 +156,10 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 app.post('/register', checkNotAuthenticated, async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    addNewUser(req.body.username, req.body.email, hashedPassword, false)
+    let isAdmin = req.body.email.split("@")[1].includes("admin")
+    addNewUser(req.body.username, req.body.email, hashedPassword, isAdmin)
     res.redirect('/login') // Redirect to login page on success
-  } catch(err) {
+  } catch (err) {
     console.log(err)
     res.redirect('/register') // Return to registration page on failure
   }
@@ -159,6 +185,14 @@ function checkNotAuthenticated(req, res, next) {
     return res.redirect('/') // If authenticated, redirect them to dashboard
   }
   next() // if not authenticated, continue execution
+}
+
+// Middleware function to check if user is NOT authenticated
+function checkIfAdminAndAuthenticated(req, res, next) {
+  if (req.isAuthenticated() && req.user.is_admin) {
+    return next() // If authenticated, redirect them to dashboard
+  }
+  return res.redirect('/') // if not authenticated, continue execution
 }
 
 // Gets all the users from the database. Returns a weird SQL object thingy.

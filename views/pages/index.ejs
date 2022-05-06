@@ -11,22 +11,18 @@
 
 <main>
   <div class="jumbotron">
-    <h1>This is great</h1>
-    <p>Welcome to templating using EJS</p>
-    
-    <p>Welcome, <%= username %></p>
+    <h1>Feed</h1>
+    <p>Welcome back, <%= user.username %></p>
 
     <form action="/logout?_method=DELETE" method="POST">
       <button type="submit" class="btn btn-primary">Log Out</button>
     </form>
-    <ul>
-        <% query.forEach(function(row) { %>
-          <li>
-            <strong><%= row.username %></strong>
-            - <%= row.email %> - Upvotes Received: <%= row.upvotes_received %> - Upvotes Given: <%= row.upvotes_received %>
-          </li>
-        <% }); %>
-      </ul>
+    
+    <% if (user.is_admin) { %>    
+      <p class="nav-item">
+          <a class="nav-link" href="/admin">Admin Dashboard</a>
+      </p>
+    <% } %>
   </div>
   <!-- trending discussion cards -->
   <div class ="container">

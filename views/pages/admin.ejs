@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head'); %>
+</head>
+<body class="container">
+
+<header>
+  <%- include('../partials/header'); %>
+</header>
+
+<main>
+  <div class="jumbotron">
+    <h1>Admin Dashboard</h1>
+    <p>Welcome, <%= username %></p>
+
+    <form action="/logout?_method=DELETE" method="POST">
+      <button type="submit" class="btn btn-primary">Log Out</button>
+    </form>
+    <ul>
+        <% users.forEach(function(row) { %>
+          <li>
+            <strong><%= row.username %></strong>
+            - <%= row.email %> - Upvotes Received: <%= row.upvotes_received %> - Upvotes Given: <%= row.upvotes_received %>
+            <form action="/admin?_method=DELETE" method="POST">
+                <button type="submit" value="<%= row.user_id %>" name="delete_id" class="btn btn-danger">Delete</button>
+            </form>
+          </li>
+        <% }); %>
+      </ul>
+  </div>
+</main>
+
+<footer>
+  <%- include('../partials/footer'); %>
+</footer>
+
+</body>
+</html>
