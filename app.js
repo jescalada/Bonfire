@@ -113,7 +113,7 @@ app.get('/', checkAuthenticated, (req, res) => {
   getAllUsers().then(function ([rows, fields]) {
     res.render('pages/index', {
       query: rows,
-      username: req.user.username
+      user: req.user,
     });
   })
 })

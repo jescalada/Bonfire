@@ -12,11 +12,17 @@
 <main>
   <div class="jumbotron">
     <h1>Feed</h1>
-    <p>Welcome back, <%= username %></p>
+    <p>Welcome back, <%= user.username %></p>
 
     <form action="/logout?_method=DELETE" method="POST">
       <button type="submit" class="btn btn-primary">Log Out</button>
     </form>
+    
+    <% if (user.is_admin) { %>    
+      <p class="nav-item">
+          <a class="nav-link" href="/admin">Admin Dashboard</a>
+      </p>
+    <% } %>
   </div>
 </main>
 
