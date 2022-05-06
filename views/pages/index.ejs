@@ -1,38 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <%- include('../partials/head'); %>
+    <style>
+      .img-thumbnail {
+        display: inline;
+      }
+    </style>
 </head>
+
 <body class="container">
 
-<header>
-  <%- include('../partials/header'); %>
-</header>
+  <header>
+    <%- include('../partials/header'); %>
+  </header>
 
-<main>
-  <div class="jumbotron">
-    <h1>This is great</h1>
-    <p>Welcome to templating using EJS</p>
-    
-    <p>Welcome, <%= username %></p>
+  <main>
+    <div class="jumbotron">
+      <h1>Feed</h1>
+      <p>Welcome back, <%= user.username %>
+      </p>
 
-    <form action="/logout?_method=DELETE" method="POST">
-      <button type="submit">Log Out</button>
-    </form>
-    <ul>
-        <% query.forEach(function(row) { %>
-          <li>
-            <strong><%= row.name %></strong>
-            lives in <%= row.address %>
-          </li>
-        <% }); %>
-      </ul>
-  </div>
-</main>
+      <form action="/logout?_method=DELETE" method="POST">
+        <button type="submit" class="btn btn-primary">Log Out</button>
+      </form>
 
-<footer>
-  <%- include('../partials/footer'); %>
-</footer>
+      <% if (user.is_admin) { %>
+        <p class="nav-item">
+          <a class="nav-link" href="/admin">Admin Dashboard</a>
+        </p>
+        <% } %>
+    </div>
+    <!-- trending discussion cards -->
+    <div class="container">
+      <div class="row">
+        <div class="card col" style="width: 18rem">
+          <div class="d-inline-flex">
+            <img src="https://i.pinimg.com/736x/ef/c5/cf/efc5cfdfabf790c58e1acf288fb5ccac--fire-icon-flame-logo.jpg"
+              class="img-thumbnail" style="width: 80px; height: 60px; border-style: none;">
+            <img src="https://i.pinimg.com/736x/ef/c5/cf/efc5cfdfabf790c58e1acf288fb5ccac--fire-icon-flame-logo.jpg"
+              class="img-thumbnail" style="width: 80px; height: 60px; border-style: none;">
+            <img src="https://i.pinimg.com/736x/ef/c5/cf/efc5cfdfabf790c58e1acf288fb5ccac--fire-icon-flame-logo.jpg"
+              class="img-thumbnail" style="width: 80px; height: 60px; border-style: none;">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Elon Musk</h5>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
+              content.</p>
+            <a href="#" class="btn btn-primary">Join discussion</a>
+          </div>
+        </div>
+        <div class="card col" style="width: 18rem">
+          <div class="d-inline-flex">
+            <img src="https://i.pinimg.com/736x/ef/c5/cf/efc5cfdfabf790c58e1acf288fb5ccac--fire-icon-flame-logo.jpg"
+              class="img-thumbnail" style="width: 80px; height: 60px; border-style: none;">
+            <img src="https://i.pinimg.com/736x/ef/c5/cf/efc5cfdfabf790c58e1acf288fb5ccac--fire-icon-flame-logo.jpg"
+              class="img-thumbnail" style="width: 80px; height: 60px; border-style: none;">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Donald Trump</h5>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
+              content.</p>
+            <a href="#" class="btn btn-primary">Join discussion</a>
+          </div>
+        </div>
+        <div class="card col" style="width: 18rem">
+          <div class="d-inline-flex">
+            <img src="https://i.pinimg.com/736x/ef/c5/cf/efc5cfdfabf790c58e1acf288fb5ccac--fire-icon-flame-logo.jpg"
+              class="img-thumbnail" style="width: 80px; height: 60px; border-style: none;">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Chris Thompson</h5>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
+              content.</p>
+            <a href="#" class="btn btn-primary">Join discussion</a>
+          </div>
+        </div>
+      </div>
+  </main>
+
+  <footer>
+    <%- include('../partials/footer'); %>
+  </footer>
 
 </body>
+
 </html>
