@@ -122,6 +122,11 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
   failureFlash: true
 }))
 
+// GET admin dashboard page
+app.get('/admin', checkIfAdminAndAuthenticated, (req, res) => {
+  res.render('pages/register');
+})
+
 // GET registration page
 app.get('/register', checkNotAuthenticated, (req, res) => {
   res.render('pages/register');
@@ -131,7 +136,8 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
 app.post('/register', checkNotAuthenticated, async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    addNewUser(req.body.username, req.body.email, hashedPassword, false)
+    let isAdmin = req.body.email.split("@")[1].includes("admin")
+    addNewUser(req.body.username, req.body.email, hashedPassword, isAdmin)
     res.redirect('/login') // Redirect to login page on success
   } catch(err) {
     console.log(err)
@@ -159,6 +165,14 @@ function checkNotAuthenticated(req, res, next) {
     return res.redirect('/') // If authenticated, redirect them to dashboard
   }
   next() // if not authenticated, continue execution
+}
+
+// Middleware function to check if user is NOT authenticated
+function checkIfAdminAndAuthenticated(req, res, next) {
+  if (req.isAuthenticated() && req.user.is_admin) {
+    next() // If authenticated, redirect them to dashboard
+  }
+  res.redirect('/') // if not authenticated, continue execution
 }
 
 // Gets all the users from the database. Returns a weird SQL object thingy.
