@@ -63,6 +63,17 @@ function addNewUser(username, email, encrypted_password, isAdmin) {
   pool.query(sql);
 }
 
+// // Connects to the database and adds a new post entry
+// // var sql = `CREATE TABLE posts (post_id BIGINT NOT NULL AUTO_INCREMENT, poster_id BIGINT, upvotes_received BIGINT, post_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (post_id), FOREIGN KEY (poster_id) REFERENCES users(user_id))`;
+function addNewPost(posterId, postTitle, postContent) {
+  // Adds escape characters to ' in order to make SQL queries work properly with apostrophes
+  postTitle = postTitle.replaceAll("'", "''")
+  postContent = postContent.replaceAll("'", "''")
+  var sql = `INSERT INTO posts (poster_id, upvotes_received, post_title, post_content) values
+  ('${posterId}', '0','${postTitle}', '${postContent}');`;
+  pool.query(sql);
+}
+
 // Checks if an email is in the database
 // Returns an object representing a user, or null
 async function getUserByEmail(email) {
@@ -111,11 +122,11 @@ async function deleteUserById(id) {
   await pool.execute(sql, [1, 1]);
 }
 
-// GET landing page. Currently it gets all the users from the database, for debugging purposes.
+// GET landing page. Gets all the posts from the backend and displays them.
 app.get('/', checkAuthenticated, (req, res) => {
-  getAllUsers().then(function ([rows, fields]) {
+  getAllPosts().then(function ([rows, fields]) {
     res.render('pages/index', {
-      query: rows,
+      posts: rows,
       user: req.user,
     });
   })
@@ -201,6 +212,12 @@ function checkIfAdminAndAuthenticated(req, res, next) {
 // Gets all the users from the database. Returns a weird SQL object thingy.
 async function getAllUsers() {
   let [rows, fields] = await pool.execute('SELECT * FROM users', [1, 1]);
+  return [rows, fields];
+}
+
+// Gets all the posts from the database. Returns a weird SQL object thingy.
+async function getAllPosts() {
+  let [rows, fields] = await pool.execute('SELECT * FROM posts', [1, 1]);
   return [rows, fields];
 }
 
