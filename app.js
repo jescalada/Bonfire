@@ -44,6 +44,9 @@ app.use(passport.session())
 // Tells our app to override some methods, so we can execute delete requests as POST instead from the HTML
 app.use(methodOverride('_method'))
 
+// Tells our app to keep in mind the folder called "public", where we have various assets
+app.use(express.static(__dirname + '/public'));
+
 // Connection info should be obtained using a .env
 const pool = mysql.createPool({
   connectionLimit: 10,
@@ -230,6 +233,34 @@ app.listen(port, () => {
 //     connection.query(sql, function (err, result) {
 //       if (err) throw err;
 //       console.log("TABLE users created.");
+//     });
+//   })
+// }
+
+// Connects to the database and creates a post table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function createPostTable() {
+//   var sql = `CREATE TABLE posts (post_id BIGINT NOT NULL AUTO_INCREMENT, poster_id BIGINT, upvotes_received BIGINT, post_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (post_id), FOREIGN KEY (poster_id) REFERENCES users(user_id))`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createPostTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE posts created.");
+//     });
+//   })
+// }
+
+// Connects to the database and creates a comment table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function createCommentTable() {
+//   var sql = `CREATE TABLE comments (comment_id BIGINT NOT NULL AUTO_INCREMENT, commenter_id BIGINT, post_id BIGINT, upvotes_received BIGINT, post_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (comment_id), FOREIGN KEY (commenter_id) REFERENCES users(user_id), FOREIGN KEY (post_id) REFERENCES posts(post_id))`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createCommentTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE comments created.");
 //     });
 //   })
 // }
