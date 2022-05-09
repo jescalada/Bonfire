@@ -185,6 +185,13 @@ app.delete('/logout', (req, res) => {
   res.redirect('/login')
 })
 
+// POST /post page
+app.post('/post', checkAuthenticated, async (req, res) => {
+    addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent)
+    res.redirect('/') // Redirect to login page on success
+  }
+)
+
 // Middleware function to check if user is authenticated
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
@@ -282,31 +289,31 @@ app.listen(port, () => {
 //   })
 // }
 
-// Connects to the database and drops the user table
+// Connects to the database and drops a table
 // This function is commented out, because it CANNOT be used with mysql connection pools
-// function dropUserTable() {
-//   var sql = `DROP TABLE users`
+// function dropTable() {
+//   var sql = `DROP TABLE posts`
 //     connection.connect(function(err) {
 //     if (err) throw err;
-//     console.log("Connected at createUserTable.");
+//     console.log("Connected at dropTable.");
 //     connection.query(sql, function (err, result) {
 //       if (err) throw err;
-//       console.log("TABLE users dropped.");
+//       console.log("TABLE dropped.");
 //     });
 //   })
 // }
 
-// Connects to the database and modifies the user table
+// Connects to the database and modifies a table
 // This function is commented out, because it CANNOT be used with mysql connection pools
-// function modifyUserTable() {
-//   var sql = `ALTER TABLE users
-//   DROP COLUMN fullname;`;
+// function modifyTable() {
+//   var sql = `ALTER TABLE posts
+//   ADD post_title varchar(255), ADD post_content TEXT;`
 //   connection.connect(function(err) {
 //     if (err) throw err;
-//     console.log("Connected at createUserTable.");
+//     console.log("Connected at modifyTable.");
 //     connection.query(sql, function (err, result) {
 //       if (err) throw err;
-//       console.log("TABLE users modified.");
+//       console.log("TABLE modified.");
 //     });
 //   })
 // }
