@@ -44,6 +44,9 @@ app.use(passport.session())
 // Tells our app to override some methods, so we can execute delete requests as POST instead from the HTML
 app.use(methodOverride('_method'))
 
+// Tells our app to keep in mind the folder called "public", where we have various assets
+app.use(express.static(__dirname + '/public'));
+
 // Connection info should be obtained using a .env
 const pool = mysql.createPool({
   connectionLimit: 10,
@@ -57,6 +60,17 @@ const pool = mysql.createPool({
 function addNewUser(username, email, encrypted_password, isAdmin) {
   var sql = `INSERT INTO users (username, email, upvotes_received, upvotes_given, encrypted_password, is_admin) values
   ('${username}', '${email}','0', '0', '${encrypted_password}', ${isAdmin});`;
+  pool.query(sql);
+}
+
+// // Connects to the database and adds a new post entry
+// // var sql = `CREATE TABLE posts (post_id BIGINT NOT NULL AUTO_INCREMENT, poster_id BIGINT, upvotes_received BIGINT, post_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (post_id), FOREIGN KEY (poster_id) REFERENCES users(user_id))`;
+function addNewPost(posterId, postTitle, postContent) {
+  // Adds escape characters to ' in order to make SQL queries work properly with apostrophes
+  postTitle = postTitle.replaceAll("'", "''")
+  postContent = postContent.replaceAll("'", "''")
+  var sql = `INSERT INTO posts (poster_id, upvotes_received, post_title, post_content) values
+  ('${posterId}', '0','${postTitle}', '${postContent}');`;
   pool.query(sql);
 }
 
@@ -108,11 +122,11 @@ async function deleteUserById(id) {
   await pool.execute(sql, [1, 1]);
 }
 
-// GET landing page. Currently it gets all the users from the database, for debugging purposes.
+// GET landing page. Gets all the posts from the backend and displays them.
 app.get('/', checkAuthenticated, (req, res) => {
-  getAllUsers().then(function ([rows, fields]) {
+  getAllPosts().then(function ([rows, fields]) {
     res.render('pages/index', {
-      query: rows,
+      posts: rows,
       user: req.user,
     });
   })
@@ -171,6 +185,13 @@ app.delete('/logout', (req, res) => {
   res.redirect('/login')
 })
 
+// POST /post page
+app.post('/post', checkAuthenticated, async (req, res) => {
+    addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent)
+    res.redirect('/') // Redirect to login page on success
+  }
+)
+
 // Middleware function to check if user is authenticated
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
@@ -198,6 +219,12 @@ function checkIfAdminAndAuthenticated(req, res, next) {
 // Gets all the users from the database. Returns a weird SQL object thingy.
 async function getAllUsers() {
   let [rows, fields] = await pool.execute('SELECT * FROM users', [1, 1]);
+  return [rows, fields];
+}
+
+// Gets all the posts from the database. Returns a weird SQL object thingy.
+async function getAllPosts() {
+  let [rows, fields] = await pool.execute('SELECT * FROM posts', [1, 1]);
   return [rows, fields];
 }
 
@@ -234,31 +261,59 @@ app.listen(port, () => {
 //   })
 // }
 
-// Connects to the database and drops the user table
+// Connects to the database and creates a post table
 // This function is commented out, because it CANNOT be used with mysql connection pools
-// function dropUserTable() {
-//   var sql = `DROP TABLE users`
-//     connection.connect(function(err) {
+// function createPostTable() {
+//   var sql = `CREATE TABLE posts (post_id BIGINT NOT NULL AUTO_INCREMENT, poster_id BIGINT, upvotes_received BIGINT, post_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (post_id), FOREIGN KEY (poster_id) REFERENCES users(user_id))`;
+//   connection.connect(function(err) {
 //     if (err) throw err;
-//     console.log("Connected at createUserTable.");
+//     console.log("Connected at createPostTable.");
 //     connection.query(sql, function (err, result) {
 //       if (err) throw err;
-//       console.log("TABLE users dropped.");
+//       console.log("TABLE posts created.");
 //     });
 //   })
 // }
 
-// Connects to the database and modifies the user table
+// Connects to the database and creates a comment table
 // This function is commented out, because it CANNOT be used with mysql connection pools
-// function modifyUserTable() {
-//   var sql = `ALTER TABLE users
-//   DROP COLUMN fullname;`;
+// function createCommentTable() {
+//   var sql = `CREATE TABLE comments (comment_id BIGINT NOT NULL AUTO_INCREMENT, commenter_id BIGINT, post_id BIGINT, upvotes_received BIGINT, post_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (comment_id), FOREIGN KEY (commenter_id) REFERENCES users(user_id), FOREIGN KEY (post_id) REFERENCES posts(post_id))`;
 //   connection.connect(function(err) {
 //     if (err) throw err;
-//     console.log("Connected at createUserTable.");
+//     console.log("Connected at createCommentTable.");
 //     connection.query(sql, function (err, result) {
 //       if (err) throw err;
-//       console.log("TABLE users modified.");
+//       console.log("TABLE comments created.");
+//     });
+//   })
+// }
+
+// Connects to the database and drops a table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function dropTable() {
+//   var sql = `DROP TABLE posts`
+//     connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at dropTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE dropped.");
+//     });
+//   })
+// }
+
+// Connects to the database and modifies a table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function modifyTable() {
+//   var sql = `ALTER TABLE posts
+//   ADD post_title varchar(255), ADD post_content TEXT;`
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at modifyTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE modified.");
 //     });
 //   })
 // }
