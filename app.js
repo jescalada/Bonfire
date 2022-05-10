@@ -185,12 +185,20 @@ app.delete('/logout', (req, res) => {
   res.redirect('/login')
 })
 
+<<<<<<< Updated upstream
 // GET post page
+=======
+// render the single post page with "get" method 
+>>>>>>> Stashed changes
 app.get('/post', checkAuthenticated, (req, res) => {
   res.render('pages/post');
 })
 
+<<<<<<< Updated upstream
 // POST /post page
+=======
+// POST /feed ? post page
+>>>>>>> Stashed changes
 app.post('/post', checkAuthenticated, async (req, res) => {
     addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent)
     res.redirect('/') // Redirect to login page on success
