@@ -185,6 +185,11 @@ app.delete('/logout', (req, res) => {
   res.redirect('/login')
 })
 
+// GET post page
+app.get('/post', checkAuthenticated, (req, res) => {
+  res.render('pages/post');
+})
+
 // POST /post page
 app.post('/post', checkAuthenticated, async (req, res) => {
     addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent)
