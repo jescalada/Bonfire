@@ -185,13 +185,36 @@ app.delete('/logout', (req, res) => {
   res.redirect('/login')
 })
 
+// Checks if a postID is in the database
+// Returns an object representing a specific post or null
+async function getPostById(id) {
+  var sql = `SELECT * FROM posts WHERE post_id='${id}'`;
+  let [rows, fields] = await pool.execute(sql, [1, 1]);
+  let row = rows[0];
+  if (row) {
+    return {
+      post_id: row.post_id,
+      poster_id: row.poster_id,
+      upvotes_received: row.upvotes_received,
+      post_timestamp: row.post_timestamp,
+      post_title: row.post_title,
+      post_content: row.post_content
+    }
+  } else {
+    return null
+  }
+}
+
 // render the single post page with "get" method 
-app.get('/post', checkAuthenticated, (req, res) => {
-  res.render('pages/post');
+app.get('/post/:postid', checkAuthenticated, async (req, res) => {
+  let postID = req.params.postid;
+  let post = await getPostById(postID)
+  res.render('pages/post', {
+      row: post
+  })
 })
 
-
-// POST /feed ? post page
+// POST post page
 app.post('/post', checkAuthenticated, async (req, res) => {
     addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent)
     res.redirect('/') // Redirect to login page on success
