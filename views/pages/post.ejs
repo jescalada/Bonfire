@@ -27,7 +27,7 @@
                     height="60" />
                   <div>
                     <h6 class="fw-bold text-primary mb-1">
-                      <%= row.poster_id %>
+                      <%= poster.username %>
                     </h6>
                     <p class="text-muted small mb-0">
                       Shared publicly - <%= row.post_timestamp %>
@@ -129,6 +129,10 @@
         })
         .then(response => response.json().then((data) => {
           console.log(data)
+          if (data.error) {
+            console.log("Server Error: " + error)
+            return
+          }
           if (data.liked) { // If the post was liked, then update the DOM to give like feedback
             setButtonLiked(true)
           } else { // If the post was unliked, then update the DOM to give unlike feedback
