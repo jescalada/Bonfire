@@ -363,6 +363,34 @@ app.listen(port, () => {
 //   })
 // }
 
+// Connects to the database and creates a like_post table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function createLikePostTable() {
+//   var sql = `CREATE TABLE liked_posts (post_like_id BIGINT NOT NULL AUTO_INCREMENT, post_id BIGINT, liker_id BIGINT, PRIMARY KEY (post_like_id), FOREIGN KEY (post_id) REFERENCES posts(post_id), FOREIGN KEY (liker_id) REFERENCES users(user_id))`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createLikedPostTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE liked_posts created.");
+//     });
+//   })
+// }
+
+// Connects to the database and creates a like_comment table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function createLikeCommentTable() {
+//   var sql = `CREATE TABLE liked_comments (comment_like_id BIGINT NOT NULL AUTO_INCREMENT, comment_id BIGINT, liker_id BIGINT, PRIMARY KEY (comment_like_id), FOREIGN KEY (comment_id) REFERENCES comments(comment_id), FOREIGN KEY (liker_id) REFERENCES users(user_id))`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createLikedCommentTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE liked_comments created.");
+//     });
+//   })
+// }
+
 // Connects to the database and drops a table
 // This function is commented out, because it CANNOT be used with mysql connection pools
 // function dropTable() {
