@@ -3,6 +3,9 @@
 
 <head>
   <%- include('../partials/head'); %>
+    <script>
+
+    </script>
 </head>
 
 <body class="container">
@@ -11,6 +14,7 @@
     <%- include('../partials/header'); %>
   </header>
   <main>
+    <!-- The post you are viewing -->
     <section style="background-color: #eee;">
       <div class="container">
         <div class="row d-flex justify-content-center">
@@ -22,7 +26,9 @@
                     src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp" alt="avatar" width="60"
                     height="60" />
                   <div>
-                    <h6 class="fw-bold text-primary mb-1"><%= row.poster_id %></h6>
+                    <h6 class="fw-bold text-primary mb-1">
+                      <%= row.poster_id %>
+                    </h6>
                     <p class="text-muted small mb-0">
                       Shared publicly - <%= row.post_timestamp %>
                     </p>
@@ -50,23 +56,56 @@
                   </a>
                 </div>
               </div>
+              <!-- Comment Box -->
               <div class="card-footer py-3 border-0" style="background-color: #f8f9fa;">
-                <div class="d-flex flex-start w-100">
-                  <div class="form-outline w-100">
-                    <textarea class="form-control" id="textAreaExample" rows="4" style="background: #fff;"></textarea>
-                    <label class="form-label" for="textAreaExample">Message</label>
+                <form action="/comment/<%= row.post_id %>" method="post">
+                  <div class="d-flex flex-start w-100">
+                    <div class="form-outline w-100">
+                      <textarea class="form-control" id="textAreaExample" name="commentContent" rows="4"
+                        style="background: #fff;"></textarea>
+                      <label class="form-label" for="commentContent">Message</label>
+                    </div>
                   </div>
-                </div>
-                <div class="float-end mt-2 pt-1">
-                  <button type="button" class="btn btn-primary btn-sm">Post comment</button>
-                  <button type="button" class="btn btn-outline-primary btn-sm">Cancel</button>
-                </div>
+                  <div class="float-end mt-2 pt-1">
+                    <button type="submit" class="btn btn-primary btn-sm">Post comment</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm">Cancel</button>
+                  </div>
+                </form>
+              </div>
+              <!-- Comment Section  -->
+              <div class="container">
+                <p class="h3 mt-3">
+                  Comments
+                </p>
+                <% comments.forEach(function(row) { %>
+                  <div class="card mb-4">
+                    <div class="card-body">
+                      <p><%= row.comment_content %></p>
+
+                      <div class="d-flex justify-content-between">
+                        <div class="d-flex flex-row align-items-center">
+                          <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(4).webp" alt="avatar" width="25"
+                            height="25" />
+                          <p class="small mb-0 ms-2"><%= row.commenter_id %></p>
+                        </div>
+                        <div class="d-flex flex-row align-items-center">
+                          <p class="small text-muted mb-0">Upvote</p>
+                          <i class="far fa-thumbs-up mx-2 fa-xs text-black" style="margin-top: -0.16rem;"></i>
+                          <p class="small text-muted mb-0"><%= row.upvotes_received %></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <% }); %>
+
               </div>
             </div>
           </div>
         </div>
       </div>
+
     </section>
+
   </main>
 
   <footer>

@@ -2,6 +2,8 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config() //Loads in all the environment variables
 }
 
+let postID = null;
+
 const express = require('express')
 const path = require('path')
 const mysql = require('mysql2/promise')
@@ -207,12 +209,43 @@ async function getPostById(id) {
 
 // render the single post page with "get" method 
 app.get('/post/:postid', checkAuthenticated, async (req, res) => {
-  let postID = req.params.postid;
-  let post = await getPostById(postID)
+  let post = await getPostById(req.params.postid)
+  let rows = await getCommentsByPostId(req.params.postid)
   res.render('pages/post', {
-      row: post
+      row: post,
+      comments: rows
   })
 })
+
+// POST comment and re-direct to the single post page
+app.post('/comment/:postid', checkAuthenticated, async (req, res) => {
+  addNewComment(req.params.postid, req.user.user_id, req.body.commentContent)
+  res.redirect(`/post/${req.params.postid}`) // Redirect to the same page on success
+})
+
+// Checks if a commentID is in the database
+// Returns an object representing a specific post or null
+async function getCommentsByPostId(id) {
+  var sql = `SELECT * FROM comments WHERE post_id='${id}'`;
+  let [rows, fields] = await pool.execute(sql, [1, 1]);
+  // let row = rows[0];
+  if (rows) {
+    return rows
+  } else {
+    return null
+  }
+}
+
+// Connects to the database and adds a new comment entry
+function addNewComment(post_id, commenter_id, commentContent) {
+  // Adds escape characters to ' in order to make SQL queries work properly with apostrophes
+  commentContent = commentContent.replaceAll("'", "''")
+  post_id = postID;
+  var sql = `INSERT INTO comments (commenter_id, post_id, upvotes_received, comment_content) values
+  ('${commenter_id}','${post_id}', '0', '${commentContent}');`;
+  pool.query(sql);
+}
+
 
 // POST post page
 app.post('/post', checkAuthenticated, async (req, res) => {
@@ -336,7 +369,7 @@ app.listen(port, () => {
 // This function is commented out, because it CANNOT be used with mysql connection pools
 // function modifyTable() {
 //   var sql = `ALTER TABLE posts
-//   ADD post_title varchar(255), ADD post_content TEXT;`
+//   DROP comment_content;`
 //   connection.connect(function(err) {
 //     if (err) throw err;
 //     console.log("Connected at modifyTable.");
