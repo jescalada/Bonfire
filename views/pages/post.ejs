@@ -42,7 +42,8 @@
                 </p>
 
                 <div class="small d-flex justify-content-start">
-                  <a href="#" onclick="likePost('<%= row.post_id %>', '<%= user_id %>')" class="d-flex align-items-center me-3 post-action">
+                  <a href="#" onclick="likePost('<%= row.post_id %>', '<%= user_id %>')"
+                    class="d-flex align-items-center me-3 post-action">
                     <i class="far fa-thumbs-up me-2"></i>
                     <p class="mb-0 unliked" id="like-button">Like!</p>
                   </a>
@@ -97,7 +98,6 @@
                   </div>
                 </div>
                 <% }); %>
-
               </div>
             </div>
           </div>
@@ -117,26 +117,22 @@
     // Sends a POST request to the backend using 
     async function likePost(postId, likerId) {
       let data = {
-            post_id: postId,
-            liker_id: likerId,
-          }
+        post_id: postId,
+        liker_id: likerId,
+      }
       fetch('/likepost', {
           method: 'POST',
           body: JSON.stringify(data),
-          headers: { 'Content-type': 'application/json' }
+          headers: {
+            'Content-type': 'application/json'
+          }
         })
         .then(response => response.json().then((data) => {
           console.log(data)
           if (data.liked) { // If the post was liked, then update the DOM to give like feedback
-            var likeButton = document.getElementById('like-button');
-            likeButton.classList.add("liked")
-            likeButton.classList.remove("unliked")
-            likeButton.innerHTML = "Unlike!"
+            setButtonLiked(true)
           } else { // If the post was unliked, then update the DOM to give unlike feedback
-            var likeButton = document.getElementById('like-button');
-            likeButton.classList.add("unliked")
-            likeButton.classList.remove("liked")
-            likeButton.innerHTML = "Like!"
+            setButtonLiked(false)
           }
         }));
     }
