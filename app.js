@@ -258,11 +258,30 @@ app.post('/post', checkAuthenticated, async (req, res) => {
 
 // POST post page
 app.post('/likepost', checkAuthenticated, async (req, res) => {
-  console.log(req.body)
-  console.log(`UserId: ${req.body.liker_id} ReqUserId: ${req.user.user_id} PostId: ${req.body.post_id}`)
-  // likePost(req.user.user_id, req.body.postTitle, req.body.postContent)
-  // DOES NOT REDIRECT ON SUCCESS (it is merely a fetch route)
-  // res.redirect(`/post/${}`) // Redirect to login page on success
+  await toggleLike(req.user.user_id, req.body.post_id).then((liked) => {
+    // ON SUCCESS, it sends a JSON with the current liked status of the post/user pair
+    res.json({
+      liked: liked
+    })
+  })
+})
+
+// Toggles the like status of a user/post combination
+// Returns true if the post was liked, false if the post was unliked 
+async function toggleLike(likerId, postId) {
+  let isLiked = await checkLikedPost(likerId, postId)
+  console.log(isLiked)
+  if (!isLiked) {
+    var sql = `INSERT INTO liked_posts (post_id, liker_id) values
+      ('${postId}', '${likerId}');`;
+    pool.query(sql);
+    console.log("Just liked it.")
+    return true
+  } else {
+    var sql = `DELETE FROM liked_posts WHERE post_id='${postId}' AND liker_id='${likerId}';`;
+    pool.query(sql);
+    console.log("Just unliked it.")
+    return false
   }
 )
 
