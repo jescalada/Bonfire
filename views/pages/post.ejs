@@ -3,9 +3,9 @@
 
 <head>
   <%- include('../partials/head'); %>
-    <script>
+  <script>
 
-    </script>
+  </script>
 </head>
 
 <body class="container">
@@ -42,7 +42,7 @@
                 </p>
 
                 <div class="small d-flex justify-content-start">
-                  <a href="#!" class="d-flex align-items-center me-3">
+                  <a href="#" onclick="likePost('<%= row.post_id %>', '<%= user_id %>')" class="d-flex align-items-center me-3">
                     <i class="far fa-thumbs-up me-2"></i>
                     <p class="mb-0">Like</p>
                   </a>
@@ -78,25 +78,25 @@
                   Comments
                 </p>
                 <% comments.forEach(function(row) { %>
-                  <div class="card mb-4">
-                    <div class="card-body">
-                      <p><%= row.comment_content %></p>
+                <div class="card mb-4">
+                  <div class="card-body">
+                    <p><%= row.comment_content %></p>
 
-                      <div class="d-flex justify-content-between">
-                        <div class="d-flex flex-row align-items-center">
-                          <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(4).webp" alt="avatar" width="25"
-                            height="25" />
-                          <p class="small mb-0 ms-2"><%= row.commenter_id %></p>
-                        </div>
-                        <div class="d-flex flex-row align-items-center">
-                          <p class="small text-muted mb-0">Upvote</p>
-                          <i class="far fa-thumbs-up mx-2 fa-xs text-black" style="margin-top: -0.16rem;"></i>
-                          <p class="small text-muted mb-0"><%= row.upvotes_received %></p>
-                        </div>
+                    <div class="d-flex justify-content-between">
+                      <div class="d-flex flex-row align-items-center">
+                        <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(4).webp" alt="avatar" width="25"
+                          height="25" />
+                        <p class="small mb-0 ms-2"><%= row.commenter_id %></p>
+                      </div>
+                      <div class="d-flex flex-row align-items-center">
+                        <p class="small text-muted mb-0">Upvote</p>
+                        <i class="far fa-thumbs-up mx-2 fa-xs text-black" style="margin-top: -0.16rem;"></i>
+                        <p class="small text-muted mb-0"><%= row.upvotes_received %></p>
                       </div>
                     </div>
                   </div>
-                  <% }); %>
+                </div>
+                <% }); %>
 
               </div>
             </div>
@@ -108,10 +108,26 @@
 
   </main>
 
+
   <footer>
     <%- include('../partials/footer'); %>
   </footer>
 
+  <script>
+    // Sends a POST request to the backend using 
+    async function likePost(postId, likerId) {
+      let data = {
+            post_id: postId,
+            liker_id: likerId,
+          }
+      fetch('/likepost', {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: { 'Content-type': 'application/json' }
+        })
+        .then(response => console.log(response));
+    }
+  </script>
 </body>
 
 </html>
