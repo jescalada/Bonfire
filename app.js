@@ -2,8 +2,6 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config() //Loads in all the environment variables
 }
 
-let postID = null;
-
 const express = require('express')
 const path = require('path')
 const mysql = require('mysql2/promise')
@@ -240,7 +238,6 @@ async function getCommentsByPostId(id) {
 function addNewComment(post_id, commenter_id, commentContent) {
   // Adds escape characters to ' in order to make SQL queries work properly with apostrophes
   commentContent = commentContent.replaceAll("'", "''")
-  post_id = postID;
   var sql = `INSERT INTO comments (commenter_id, post_id, upvotes_received, comment_content) values
   ('${commenter_id}','${post_id}', '0', '${commentContent}');`;
   pool.query(sql);
