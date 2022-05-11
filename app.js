@@ -262,7 +262,7 @@ app.post('/post', checkAuthenticated, async (req, res) => {
 // A route that toggles a like. Likes a post if it is not liked, unlikes it otherwise.
 app.post('/likepost', checkAuthenticated, async (req, res) => {
   try {
-    await toggleLike(req.user.user_id, req.body.post_id).then((liked) => {
+    await toggleLikePost(req.user.user_id, req.body.post_id).then((liked) => {
       // ON SUCCESS, it sends a JSON with the current liked status of the post/user pair
       res.json({
         liked: liked,
@@ -279,7 +279,7 @@ app.post('/likepost', checkAuthenticated, async (req, res) => {
 
 // Toggles the like status of a user/post combination
 // Returns true if the post was liked, false if the post was unliked 
-async function toggleLike(likerId, postId) {
+async function toggleLikePost(likerId, postId) {
   let isLiked = await checkLikedPost(likerId, postId)
   if (!isLiked) {
     var sql = `INSERT INTO liked_posts (post_id, liker_id) values
@@ -306,6 +306,25 @@ async function checkLikedPost(userId, postId) {
   let row = rows[0];
   return row != null
 }
+
+// A route that toggles a like. Likes a post if it is not liked, unlikes it otherwise.
+app.post('/likecomment', checkAuthenticated, async (req, res) => {
+  console.log(req.body.liker_id, req.body.comment_id)
+  // try {
+  //   await toggleLikePost(req.user.user_id, req.body.post_id).then((liked) => {
+  //     // ON SUCCESS, it sends a JSON with the current liked status of the post/user pair
+  //     res.json({
+  //       liked: liked,
+  //       error: null
+  //     })
+  //   })
+  // } catch (err) {
+  //   res.json({
+  //     liked: null,
+  //     error: err
+  //   })
+  // }
+})
 
 // Middleware function to check if user is authenticated
 function checkAuthenticated(req, res, next) {
