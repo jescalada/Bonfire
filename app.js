@@ -160,7 +160,7 @@ app.get('/admin', checkIfAdminAndAuthenticated, (req, res) => {
 })
 
 app.delete('/admin', (req, res) => {
-  deleteUserById(req.body.delete_id).then(function() {
+  deleteUserById(req.body.delete_id).then(function () {
     res.redirect('/admin');
   })
 })
@@ -214,9 +214,9 @@ app.get('/post/:postid', checkAuthenticated, async (req, res) => {
   let post = await getPostById(req.params.postid)
   let rows = await getCommentsByPostId(req.params.postid)
   res.render('pages/post', {
-      row: post,
-      comments: rows,
-      user_id: req.user.user_id,
+    row: post,
+    comments: rows,
+    user_id: req.user.user_id,
   })
 })
 
@@ -251,12 +251,11 @@ function addNewComment(post_id, commenter_id, commentContent) {
 
 // POST post page
 app.post('/post', checkAuthenticated, async (req, res) => {
-    addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent)
-    res.redirect('/') // Redirect to login page on success
-  }
-)
+  addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent)
+  res.redirect('/') // Redirect to login page on success
+})
 
-// POST post page
+// A route that toggles a like. Likes a post if it is not liked, unlikes it otherwise.
 app.post('/likepost', checkAuthenticated, async (req, res) => {
   await toggleLike(req.user.user_id, req.body.post_id).then((liked) => {
     // ON SUCCESS, it sends a JSON with the current liked status of the post/user pair
@@ -283,7 +282,16 @@ async function toggleLike(likerId, postId) {
     console.log("Just unliked it.")
     return false
   }
-)
+}
+
+async function checkLikedPost(userId, postId) {
+  var sql = `SELECT * FROM liked_posts WHERE post_id='${postId}' AND liker_id='${userId}'`;
+  let [rows, fields] = await pool.execute(sql, [1, 1]);
+  console.log("Rows found: " + rows.length)
+  let row = rows[0];
+  console.log("First match" + row)
+  return row != null
+}
 
 // Middleware function to check if user is authenticated
 function checkAuthenticated(req, res, next) {
