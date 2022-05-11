@@ -93,7 +93,11 @@
                         <p class="small mb-0 ms-2"><%= row.commenter_username %></p>
                       </div>
                       <div class="d-flex flex-row align-items-center">
-                        <p class="small text-muted mb-0">Like!</p>
+                        <a href="#" onclick="likeComment('<%= row.comment_id %>', '<%= user_id %>')"
+                          class="d-flex align-items-center me-3 post-action">
+                          <i class="far fa-thumbs-up me-2"></i>
+                          <p class="mb-0 unliked" id="comment-like-button-<%= row.comment_id %>">Like!</p>
+                        </a>
                         <i class="far fa-thumbs-up mx-2 fa-xs text-black" style="margin-top: -0.16rem;"></i>
                         <p class="small text-muted mb-0"><%= row.upvotes_received %> Likes</p>
                       </div>
@@ -144,14 +148,40 @@
         }));
     }
 
-    function setButtonLiked(isLiked) {
+    async function likeComment(commentId, likerId) {
+      let data = {
+        comment_id: commentId,
+        liker_id: likerId,
+      }
+      fetch('/likecomment', {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: {
+            'Content-type': 'application/json'
+          }
+        })
+        .then(response => response.json().then((data) => {
+          console.log(data)
+          if (data.error) {
+            console.log("Server Error: " + error)
+            return
+          }
+          if (data.liked) { // If the post was liked, then update the DOM to give like feedback
+            setButtonLiked('comment-like-button-' + commentId, true)
+          } else { // If the post was unliked, then update the DOM to give unlike feedback
+            setButtonLiked('comment-like-button-' + commentId, false)
+          }
+        }));
+    }
+
+    function setButtonLiked(buttonId, isLiked) {
       if (isLiked) {
-        var likeButton = document.getElementById('like-button');
+        var likeButton = document.getElementById(buttonId);
         likeButton.classList.add("liked")
         likeButton.classList.remove("unliked")
         likeButton.innerHTML = "Unlike!"
       } else {
-        var likeButton = document.getElementById('like-button');
+        var likeButton = document.getElementById(buttonId);
         likeButton.classList.add("unliked")
         likeButton.classList.remove("liked")
         likeButton.innerHTML = "Like!"
@@ -159,9 +189,9 @@
     }
 
     '<% if (is_liked) { %>'
-      setButtonLiked(true)
+      setButtonLiked('like-button', true)
     '<% } else { %>'
-      setButtonLiked(false)
+      setButtonLiked('like-button', false)
     '<% } %>'
   </script>
 </body>
