@@ -42,15 +42,15 @@
                 </p>
 
                 <div class="small d-flex justify-content-start">
-                  <a href="#" onclick="likePost('<%= row.post_id %>', '<%= user_id %>')" class="d-flex align-items-center me-3">
+                  <a href="#" onclick="likePost('<%= row.post_id %>', '<%= user_id %>')" class="d-flex align-items-center me-3 post-action">
                     <i class="far fa-thumbs-up me-2"></i>
-                    <p class="mb-0">Like</p>
+                    <p class="mb-0 unliked" id="like-button">Like!</p>
                   </a>
-                  <a href="#!" class="d-flex align-items-center me-3">
+                  <a href="#!" class="d-flex align-items-center me-3 post-action">
                     <i class="far fa-thumbs-up me-2"></i>
                     <p class="mb-0">Comment</p>
                   </a>
-                  <a href="#!" class="d-flex align-items-center me-3">
+                  <a href="#!" class="d-flex align-items-center me-3 post-action">
                     <i class="fas fa-share me-2"></i>
                     <p class="mb-0">Share</p>
                   </a>
@@ -91,7 +91,7 @@
                       <div class="d-flex flex-row align-items-center">
                         <p class="small text-muted mb-0">Upvote</p>
                         <i class="far fa-thumbs-up mx-2 fa-xs text-black" style="margin-top: -0.16rem;"></i>
-                        <p class="small text-muted mb-0"><%= row.upvotes_received %></p>
+                        <p class="small text-muted mb-0"><%= row.upvotes_received %> Likes</p>
                       </div>
                     </div>
                   </div>
@@ -128,9 +128,15 @@
         .then(response => response.json().then((data) => {
           console.log(data)
           if (data.liked) { // If the post was liked, then update the DOM to give like feedback
-            console.log("Like!")
+            var likeButton = document.getElementById('like-button');
+            likeButton.classList.add("liked")
+            likeButton.classList.remove("unliked")
+            likeButton.innerHTML = "Unlike!"
           } else { // If the post was unliked, then update the DOM to give unlike feedback
-            console.log("Unlike!")
+            var likeButton = document.getElementById('like-button');
+            likeButton.classList.add("unliked")
+            likeButton.classList.remove("liked")
+            likeButton.innerHTML = "Like!"
           }
         }));
     }
