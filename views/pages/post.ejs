@@ -125,7 +125,14 @@
           body: JSON.stringify(data),
           headers: { 'Content-type': 'application/json' }
         })
-        .then(response => console.log(response));
+        .then(response => response.json().then((data) => {
+          console.log(data)
+          if (data.liked) { // If the post was liked, then update the DOM to give like feedback
+            console.log("Like!")
+          } else { // If the post was unliked, then update the DOM to give unlike feedback
+            console.log("Unlike!")
+          }
+        }));
     }
   </script>
 </body>
