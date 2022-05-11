@@ -283,12 +283,18 @@ async function toggleLike(likerId, postId) {
   let isLiked = await checkLikedPost(likerId, postId)
   if (!isLiked) {
     var sql = `INSERT INTO liked_posts (post_id, liker_id) values
-      ('${postId}', '${likerId}');`;
-    pool.query(sql);
+      ('${postId}', '${likerId}');`
+    pool.query(sql)
+
+    var anotherQuery = `UPDATE posts SET upvotes_received = upvotes_received + 1 WHERE post_id = ${postId}`
+    pool.query(anotherQuery)
     return true
   } else {
     var sql = `DELETE FROM liked_posts WHERE post_id='${postId}' AND liker_id='${likerId}';`;
     pool.query(sql);
+    
+    var anotherQuery = `UPDATE posts SET upvotes_received = upvotes_received - 1 WHERE post_id = ${postId}`
+    pool.query(anotherQuery)
     return false
   }
 }
