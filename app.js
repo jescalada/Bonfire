@@ -11,6 +11,8 @@ const flash = require('express-flash')
 const session = require('express-session')
 const methodOverride = require('method-override')
 const initializePassport = require('./passport-config')
+const bodyParser = require('body-parser')
+
 // Initialize the passport
 initializePassport(
   passport, // Passport object
@@ -28,6 +30,8 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({
   extended: false
 }))
+
+app.use(bodyParser.json());
 
 // Tells our app to use flash and session (these are helper modules for authentication) 
 app.use(flash())
@@ -211,7 +215,8 @@ app.get('/post/:postid', checkAuthenticated, async (req, res) => {
   let rows = await getCommentsByPostId(req.params.postid)
   res.render('pages/post', {
       row: post,
-      comments: rows
+      comments: rows,
+      user_id: req.user.user_id,
   })
 })
 
@@ -248,6 +253,16 @@ function addNewComment(post_id, commenter_id, commentContent) {
 app.post('/post', checkAuthenticated, async (req, res) => {
     addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent)
     res.redirect('/') // Redirect to login page on success
+  }
+)
+
+// POST post page
+app.post('/likepost', checkAuthenticated, async (req, res) => {
+  console.log(req.body)
+  console.log(`UserId: ${req.body.liker_id} ReqUserId: ${req.user.user_id} PostId: ${req.body.post_id}`)
+  // likePost(req.user.user_id, req.body.postTitle, req.body.postContent)
+  // DOES NOT REDIRECT ON SUCCESS (it is merely a fetch route)
+  // res.redirect(`/post/${}`) // Redirect to login page on success
   }
 )
 
