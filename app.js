@@ -69,12 +69,12 @@ function addNewUser(username, email, encrypted_password, isAdmin) {
 
 // // Connects to the database and adds a new post entry
 // // var sql = `CREATE TABLE posts (post_id BIGINT NOT NULL AUTO_INCREMENT, poster_id BIGINT, upvotes_received BIGINT, post_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (post_id), FOREIGN KEY (poster_id) REFERENCES users(user_id))`;
-function addNewPost(posterId, postTitle, postContent) {
+function addNewPost(posterId, postTitle, postContent, posterUsername) {
   // Adds escape characters to ' in order to make SQL queries work properly with apostrophes
   postTitle = postTitle.replaceAll("'", "''")
   postContent = postContent.replaceAll("'", "''")
-  var sql = `INSERT INTO posts (poster_id, upvotes_received, post_title, post_content) values
-  ('${posterId}', '0','${postTitle}', '${postContent}');`;
+  var sql = `INSERT INTO posts (poster_id, upvotes_received, post_title, post_content, poster_username) values
+  ('${posterId}', '0','${postTitle}', '${postContent}', '${posterUsername}');`;
   pool.query(sql);
 }
 
@@ -226,7 +226,7 @@ app.get('/post/:postid', checkAuthenticated, async (req, res) => {
 
 // POST comment and re-direct to the single post page
 app.post('/comment/:postid', checkAuthenticated, async (req, res) => {
-  addNewComment(req.params.postid, req.user.user_id, req.body.commentContent)
+  addNewComment(req.params.postid, req.user.user_id, req.body.commentContent, req.user.username)
   res.redirect(`/post/${req.params.postid}`) // Redirect to the same page on success
 })
 
@@ -244,18 +244,18 @@ async function getCommentsByPostId(id) {
 }
 
 // Connects to the database and adds a new comment entry
-function addNewComment(post_id, commenter_id, commentContent) {
+function addNewComment(post_id, commenter_id, commentContent, commenterUsername) {
   // Adds escape characters to ' in order to make SQL queries work properly with apostrophes
   commentContent = commentContent.replaceAll("'", "''")
-  var sql = `INSERT INTO comments (commenter_id, post_id, upvotes_received, comment_content) values
-  ('${commenter_id}','${post_id}', '0', '${commentContent}');`;
+  var sql = `INSERT INTO comments (commenter_id, post_id, upvotes_received, comment_content, commenter_username) values
+  ('${commenter_id}','${post_id}', '0', '${commentContent}', '${commenterUsername}');`;
   pool.query(sql);
 }
 
 
 // POST post page
 app.post('/post', checkAuthenticated, async (req, res) => {
-  addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent)
+  addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username)
   res.redirect('/') // Redirect to login page on success
 })
 
@@ -443,8 +443,8 @@ app.listen(port, () => {
 // Connects to the database and modifies a table
 // This function is commented out, because it CANNOT be used with mysql connection pools
 // function modifyTable() {
-//   var sql = `ALTER TABLE posts
-//   DROP comment_content;`
+//   var sql = `ALTER TABLE comments
+//   ADD commenter_username VARCHAR(255);`
 //   connection.connect(function(err) {
 //     if (err) throw err;
 //     console.log("Connected at modifyTable.");
@@ -455,7 +455,7 @@ app.listen(port, () => {
 //   })
 // }
 
-// Connects to the database and modifies a table
+// Connects to the database and empties a table
 // This function is commented out, because it CANNOT be used with mysql connection pools
 // function deleteAllEntries() {
 //   var sql = `DELETE FROM posts`

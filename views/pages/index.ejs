@@ -43,7 +43,8 @@
             <div class="card-body">
               <div class="row">
                 <h5 class="card-title col-8 post-title-text"><%= row.post_title %></h5>
-                <p class="col-4 post-username-text">UserId: <%= row.poster_id %> - Upvotes: <%= row.upvotes_received %></p>
+                <p class="col-2 post-username-text">By <%= row.poster_username %></p>
+                <p class="col-2 post-upvotes-text"><%= row.upvotes_received %> Likes</p>
               </div>
               <p class="card-text"><%= row.post_content %> - <%= row.post_timestamp %></p>
               <a href="/post/<%= row.post_id %>" class="btn btn-primary">Join discussion</a>

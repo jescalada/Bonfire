@@ -7,6 +7,11 @@
     color: grey;
 }
 
+.post-upvotes-text {
+    font-size: 0.8rem;
+    color: grey;
+}
+
 .unliked {
     font-weight: bold;
     color: green;
