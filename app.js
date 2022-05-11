@@ -212,10 +212,12 @@ async function getPostById(id) {
 // render the single post page with "get" method 
 app.get('/post/:postid', checkAuthenticated, async (req, res) => {
   let post = await getPostById(req.params.postid)
+  let poster = await getUserById(post.poster_id)
   let rows = await getCommentsByPostId(req.params.postid)
   let isLiked = await checkLikedPost(req.user.user_id, req.params.postid)
   res.render('pages/post', {
     row: post,
+    poster: poster,
     comments: rows,
     is_liked: isLiked,
     user_id: req.user.user_id,
@@ -259,39 +261,43 @@ app.post('/post', checkAuthenticated, async (req, res) => {
 
 // A route that toggles a like. Likes a post if it is not liked, unlikes it otherwise.
 app.post('/likepost', checkAuthenticated, async (req, res) => {
-  await toggleLike(req.user.user_id, req.body.post_id).then((liked) => {
-    // ON SUCCESS, it sends a JSON with the current liked status of the post/user pair
-    res.json({
-      liked: liked
+  try {
+    await toggleLike(req.user.user_id, req.body.post_id).then((liked) => {
+      // ON SUCCESS, it sends a JSON with the current liked status of the post/user pair
+      res.json({
+        liked: liked,
+        error: null
+      })
     })
-  })
+  } catch (err) {
+    res.json({
+      liked: null,
+      error: err
+    })
+  }
 })
 
 // Toggles the like status of a user/post combination
 // Returns true if the post was liked, false if the post was unliked 
 async function toggleLike(likerId, postId) {
   let isLiked = await checkLikedPost(likerId, postId)
-  console.log(isLiked)
   if (!isLiked) {
     var sql = `INSERT INTO liked_posts (post_id, liker_id) values
       ('${postId}', '${likerId}');`;
     pool.query(sql);
-    console.log("Just liked it.")
     return true
   } else {
     var sql = `DELETE FROM liked_posts WHERE post_id='${postId}' AND liker_id='${likerId}';`;
     pool.query(sql);
-    console.log("Just unliked it.")
     return false
   }
 }
 
+// Queries the database to check if a post is liked or not, returns true if the post is liked
 async function checkLikedPost(userId, postId) {
   var sql = `SELECT * FROM liked_posts WHERE post_id='${postId}' AND liker_id='${userId}'`;
   let [rows, fields] = await pool.execute(sql, [1, 1]);
-  console.log("Rows found: " + rows.length)
   let row = rows[0];
-  console.log("First match" + row)
   return row != null
 }
 
