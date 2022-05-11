@@ -326,6 +326,36 @@ app.post('/likecomment', checkAuthenticated, async (req, res) => {
   }
 })
 
+// Toggles the like status of a user/comment combination
+// Returns true if the comment was liked, false if the comment was unliked 
+async function toggleLikeComment(likerId, commentId) {
+  let isLiked = await checkLikedComment(likerId, commentId)
+  if (!isLiked) {
+    var sql = `INSERT INTO liked_comments (comment_id, liker_id) values
+      ('${commentId}', '${likerId}');`
+    pool.query(sql)
+
+    var anotherQuery = `UPDATE comments SET upvotes_received = upvotes_received + 1 WHERE comment_id = ${commentId}`
+    pool.query(anotherQuery)
+    return true
+  } else {
+    var sql = `DELETE FROM liked_comments WHERE comment_id='${commentId}' AND liker_id='${likerId}';`;
+    pool.query(sql);
+    
+    var anotherQuery = `UPDATE comments SET upvotes_received = upvotes_received - 1 WHERE comment_id = ${commentId}`
+    pool.query(anotherQuery)
+    return false
+  }
+}
+
+// Queries the database to check if a comment is liked or not, returns true if the comment is liked
+async function checkLikedComment(userId, commentId) {
+  var sql = `SELECT * FROM liked_comments WHERE comment_id='${commentId}' AND liker_id='${userId}'`;
+  let [rows, fields] = await pool.execute(sql, [1, 1]);
+  let row = rows[0];
+  return row != null
+}
+
 // Middleware function to check if user is authenticated
 function checkAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
