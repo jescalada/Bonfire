@@ -136,6 +136,26 @@
           }
         }));
     }
+
+    function setButtonLiked(isLiked) {
+      if (isLiked) {
+        var likeButton = document.getElementById('like-button');
+        likeButton.classList.add("liked")
+        likeButton.classList.remove("unliked")
+        likeButton.innerHTML = "Unlike!"
+      } else {
+        var likeButton = document.getElementById('like-button');
+        likeButton.classList.add("unliked")
+        likeButton.classList.remove("liked")
+        likeButton.innerHTML = "Like!"
+      }
+    }
+
+    '<% if (is_liked) { %>'
+      setButtonLiked(true)
+    '<% } else { %>'
+      setButtonLiked(false)
+    '<% } %>'
   </script>
 </body>
 

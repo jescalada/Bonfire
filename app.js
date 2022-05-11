@@ -213,9 +213,11 @@ async function getPostById(id) {
 app.get('/post/:postid', checkAuthenticated, async (req, res) => {
   let post = await getPostById(req.params.postid)
   let rows = await getCommentsByPostId(req.params.postid)
+  let isLiked = await checkLikedPost(req.user.user_id, req.params.postid)
   res.render('pages/post', {
     row: post,
     comments: rows,
+    is_liked: isLiked,
     user_id: req.user.user_id,
   })
 })
