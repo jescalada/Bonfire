@@ -317,3 +317,17 @@ app.listen(port, () => {
 //     });
 //   })
 // }
+
+// Connects to the database and modifies a table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function deleteAllEntries() {
+//   var sql = `DELETE FROM posts`
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at deleteAllEntries.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE emptied.");
+//     });
+//   })
+// }
