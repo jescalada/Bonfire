@@ -21,7 +21,7 @@ initializePassport(
 )
 
 const app = express()
-const port = 3000
+const port = process.env.PORT || 3000
 
 // Tells our app that we want to use ejs as a view engine
 app.set('view engine', 'ejs');
