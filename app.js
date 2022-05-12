@@ -215,11 +215,13 @@ app.get('/post/:postid', checkAuthenticated, async (req, res) => {
   let poster = await getUserById(post.poster_id)
   let rows = await getCommentsByPostId(req.params.postid)
   let isLiked = await checkLikedPost(req.user.user_id, req.params.postid)
+  let likedComments = await getLikedCommentsByPostId(req.params.postid, req.user.user_id)
   res.render('pages/post', {
     row: post,
     poster: poster,
     comments: rows,
     is_liked: isLiked,
+    liked_comments: likedComments,
     user_id: req.user.user_id,
   })
 })
@@ -230,13 +232,27 @@ app.post('/comment/:postid', checkAuthenticated, async (req, res) => {
   res.redirect(`/post/${req.params.postid}`) // Redirect to the same page on success
 })
 
-// Checks if a commentID is in the database
-// Returns an object representing a specific post or null
+// Gets all the comments under a postID
+// Returns rows representing comments or null
 async function getCommentsByPostId(id) {
   var sql = `SELECT * FROM comments WHERE post_id='${id}'`;
   let [rows, fields] = await pool.execute(sql, [1, 1]);
   // let row = rows[0];
   if (rows) {
+    return rows
+  } else {
+    return null
+  }
+}
+
+// Gets all the comments under a postID
+// Returns rows representing comments or null
+async function getLikedCommentsByPostId(id, userId) {
+  var sql = `SELECT * FROM comments LEFT JOIN liked_comments ON comments.comment_id=liked_comments.comment_id WHERE post_id='${id}' AND liker_id='${userId}'`;
+  let [rows, fields] = await pool.execute(sql, [1, 1]);
+  // let row = rows[0];
+  if (rows) {
+    console.log(rows)
     return rows
   } else {
     return null
@@ -309,7 +325,6 @@ async function checkLikedPost(userId, postId) {
 
 // A route that toggles a comment like. Likes a comment if it is not liked, unlikes it otherwise.
 app.post('/likecomment', checkAuthenticated, async (req, res) => {
-  console.log(req.body.liker_id, req.body.comment_id)
   try {
     await toggleLikeComment(req.body.liker_id, req.body.comment_id).then((liked) => {
       // ON SUCCESS, it sends a JSON with the current liked status of the comment/user pair
