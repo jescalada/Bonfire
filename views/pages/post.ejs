@@ -141,9 +141,9 @@
             return
           }
           if (data.liked) { // If the post was liked, then update the DOM to give like feedback
-            setButtonLiked(true)
+            setButtonLiked('like-button', true)
           } else { // If the post was unliked, then update the DOM to give unlike feedback
-            setButtonLiked(false)
+            setButtonLiked('like-button', false)
           }
         }));
     }
@@ -188,10 +188,11 @@
       }
     }
 
+    // If the user liked the post, set it to Liked
     '<% if (is_liked) { %>'
-      setButtonLiked('like-button', true)
+    setButtonLiked('like-button', true)
     '<% } else { %>'
-      setButtonLiked('like-button', false)
+    setButtonLiked('like-button', false)
     '<% } %>'
   </script>
 </body>
