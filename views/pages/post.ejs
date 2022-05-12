@@ -194,6 +194,12 @@
     '<% } else { %>'
     setButtonLiked('like-button', false)
     '<% } %>'
+
+    // For each of the user's liked comments in this post, set them to Liked
+    '<% liked_comments.forEach(function(row) { %>'
+        setButtonLiked('comment-like-button-' + '<%= row.comment_id %>', true)
+    '<% }) %>'
+
   </script>
 </body>
 
