@@ -170,6 +170,26 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
   res.render('pages/register');
 })
 
+// GET mission page
+app.get('/mission', (req, res) => {
+  res.render('pages/mission');
+})
+
+// GET team page
+app.get('/team', (req, res) => {
+  res.render('pages/team');
+})
+
+// GET site rules page
+app.get('/siterules', (req, res) => {
+  res.render('pages/siterules');
+})
+
+// GET contact page
+app.get('/contact', (req, res) => {
+  res.render('pages/contact');
+})
+
 // POST login page
 app.post('/register', checkNotAuthenticated, async (req, res) => {
   try {
