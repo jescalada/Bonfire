@@ -18,9 +18,8 @@
 
   <main>
     <div class="jumbotron">
-      <h1>Feed</h1>
-      <p>Welcome back, <%= user.username %>
-      </p>
+      <h1 class="header-title">Feed</h1>
+      <p class="header-welcome">Welcome back, <%= user.username %></p>
 
       <form action="/logout?_method=DELETE" method="POST">
         <button type="submit" class="btn btn-primary">Log Out</button>
@@ -32,52 +31,32 @@
         </p>
         <% } %>
     </div>
-    <!-- trending discussion cards -->
+
+    <%- include('../partials/post_modal'); %>
+    
+    <!-- discussion cards -->
     <div class="container">
-      <div class="row">
-        <div class="card col" style="width: 18rem">
-          <div class="d-inline-flex">
-            <img src="https://i.pinimg.com/736x/ef/c5/cf/efc5cfdfabf790c58e1acf288fb5ccac--fire-icon-flame-logo.jpg"
-              class="img-thumbnail" style="width: 80px; height: 60px; border-style: none;">
-            <img src="https://i.pinimg.com/736x/ef/c5/cf/efc5cfdfabf790c58e1acf288fb5ccac--fire-icon-flame-logo.jpg"
-              class="img-thumbnail" style="width: 80px; height: 60px; border-style: none;">
-            <img src="https://i.pinimg.com/736x/ef/c5/cf/efc5cfdfabf790c58e1acf288fb5ccac--fire-icon-flame-logo.jpg"
-              class="img-thumbnail" style="width: 80px; height: 60px; border-style: none;">
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">Elon Musk</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-              content.</p>
-            <a href="#" class="btn btn-primary">Join discussion</a>
-          </div>
-        </div>
-        <div class="card col" style="width: 18rem">
-          <div class="d-inline-flex">
-            <img src="https://i.pinimg.com/736x/ef/c5/cf/efc5cfdfabf790c58e1acf288fb5ccac--fire-icon-flame-logo.jpg"
-              class="img-thumbnail" style="width: 80px; height: 60px; border-style: none;">
-            <img src="https://i.pinimg.com/736x/ef/c5/cf/efc5cfdfabf790c58e1acf288fb5ccac--fire-icon-flame-logo.jpg"
-              class="img-thumbnail" style="width: 80px; height: 60px; border-style: none;">
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">Donald Trump</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-              content.</p>
-            <a href="#" class="btn btn-primary">Join discussion</a>
+      <% posts.forEach(function(row) { %>
+        <div class="row">
+          <div class="card col m-3">
+            <div class="card-body">
+              <div class="row flex-row">
+                <h5 class="card-title col-md-8 post-title-text"><%= row.post_title %></h5>
+                <p class="col-md-2 post-username-text">u/<%= row.poster_username %></p>
+                <p class="col-md-2 post-upvotes-text"><%= row.upvotes_received %> Likes</p>
+              </div>
+              <p class="card-text"><%= row.post_content %></p>
+              <div class="row">
+                <div class="col-8 post-interaction-container">
+                  <a href="/post/<%= row.post_id %>" class="btn btn-primary">Join discussion</a>
+                </div>
+                <p class="col-4 post-timestamp-text"><%= row.post_timestamp.toString().substring(0, 24) %></p>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="card col" style="width: 18rem">
-          <div class="d-inline-flex">
-            <img src="https://i.pinimg.com/736x/ef/c5/cf/efc5cfdfabf790c58e1acf288fb5ccac--fire-icon-flame-logo.jpg"
-              class="img-thumbnail" style="width: 80px; height: 60px; border-style: none;">
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">Chris Thompson</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-              content.</p>
-            <a href="#" class="btn btn-primary">Join discussion</a>
-          </div>
-        </div>
-      </div>
+      <% }); %>  
+    </div>
   </main>
 
   <footer>

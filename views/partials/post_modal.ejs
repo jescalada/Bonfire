@@ -1,0 +1,28 @@
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#postModal">Write Post</button>
+
+<div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">New Post</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action="/post" method="post">
+          <div class="mb-3">
+            <label for="postTitle" class="col-form-label">Post Title</label>
+            <input type="text" class="form-control" id="postTitle" name="postTitle">
+          </div>
+          <div class="mb-3">
+            <label for="postContent" class="col-form-label">Content</label>
+            <textarea class="form-control" id="postContent" name="postContent"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Post</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
