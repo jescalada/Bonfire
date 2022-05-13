@@ -6,6 +6,11 @@ header {
     background-color: #4B6196 !important;
 }
 
+a:hover {
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
 .card {
     background-color: white;
 }
