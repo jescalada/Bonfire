@@ -1,3 +1,15 @@
+body {
+    background-color: #F3F4F7 !important;
+}
+
+header {
+    background-color: #4B6196 !important;
+}
+
+.card {
+    background-color: white;
+}
+
 .post-title-text {
     font-size: 1.2rem;
 }
@@ -5,12 +17,32 @@
 .post-username-text {
     font-size: 0.8rem;
     color: grey;
+    text-align: right;
 }
 
 .post-upvotes-text {
     font-size: 0.8rem;
     color: grey;
+    text-align: right;
 }
+
+.post-timestamp-text {
+    font-size: 0.8rem;
+    color: grey;
+    text-align: right;
+}
+
+.header-title,
+.header-welcome {
+    margin: 1rem;
+}
+
+@media only screen and (max-width: 768px) {
+    .post-username-text,
+    .post-upvotes-text {
+      text-align: left;
+    }
+  }
 
 .unliked {
     font-weight: bold;
@@ -29,4 +61,14 @@
 
 .post-action:hover {
     text-decoration: underline;
+}
+
+.btn,
+.btn-primary {
+    background-color: #7E90BF !important;
+    border-radius: 10rem !important;
+    color: white !important;
+    font-weight: bold !important;
+    border: none !important;
+    margin: 0.2rem 0rem;
 }

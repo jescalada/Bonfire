@@ -18,9 +18,8 @@
 
   <main>
     <div class="jumbotron">
-      <h1>Feed</h1>
-      <p>Welcome back, <%= user.username %>
-      </p>
+      <h1 class="header-title">Feed</h1>
+      <p class="header-welcome">Welcome back, <%= user.username %></p>
 
       <form action="/logout?_method=DELETE" method="POST">
         <button type="submit" class="btn btn-primary">Log Out</button>
@@ -41,10 +40,10 @@
         <div class="row">
           <div class="card col m-3">
             <div class="card-body">
-              <div class="row">
-                <h5 class="card-title col-8 post-title-text"><%= row.post_title %></h5>
-                <p class="col-2 post-username-text">u/<%= row.poster_username %></p>
-                <p class="col-2 post-upvotes-text"><%= row.upvotes_received %> Likes</p>
+              <div class="row flex-row">
+                <h5 class="card-title col-md-8 post-title-text"><%= row.post_title %></h5>
+                <p class="col-md-2 post-username-text">u/<%= row.poster_username %></p>
+                <p class="col-md-2 post-upvotes-text"><%= row.upvotes_received %> Likes</p>
               </div>
               <p class="card-text"><%= row.post_content %></p>
               <div class="row">
