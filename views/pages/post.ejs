@@ -32,7 +32,7 @@
                     <p class="text-muted small mb-0">
                       <%= row.post_timestamp %>
                     </p>
-                    <p class="text-muted small mb-0">
+                    <p class="text-muted small mb-0" id="post-likes-count">
                       <%= row.upvotes_received %> Likes
                     </p>
                   </div>
@@ -99,7 +99,7 @@
                           <p class="mb-0 unliked" id="comment-like-button-<%= row.comment_id %>">Like!</p>
                         </a>
                         <i class="far fa-thumbs-up mx-2 fa-xs text-black" style="margin-top: -0.16rem;"></i>
-                        <p class="small text-muted mb-0"><%= row.upvotes_received %> Likes</p>
+                        <p class="small text-muted mb-0"><span id="comment-likes-count-<%= row.comment_id %>"><%= row.upvotes_received %></span> Likes</p>
                       </div>
                     </div>
                   </div>
@@ -121,6 +121,7 @@
   </footer>
 
   <script>
+    let postUpvotes = parseInt('<%= row.upvotes_received %>');
     // Sends a POST request to the backend using 
     async function likePost(postId, likerId) {
       let data = {
@@ -142,8 +143,10 @@
           }
           if (data.liked) { // If the post was liked, then update the DOM to give like feedback
             setButtonLiked('like-button', true)
+            setLikes('post-likes-count', postUpvotes += 1)
           } else { // If the post was unliked, then update the DOM to give unlike feedback
             setButtonLiked('like-button', false)
+            setLikes('post-likes-count',  postUpvotes -= 1)
           }
         }));
     }
@@ -168,8 +171,12 @@
           }
           if (data.liked) { // If the post was liked, then update the DOM to give like feedback
             setButtonLiked('comment-like-button-' + commentId, true)
+            let likesElement = document.getElementById('comment-likes-count-' + commentId)
+            likesElement.innerHTML = parseInt(likesElement.innerHTML) + 1
           } else { // If the post was unliked, then update the DOM to give unlike feedback
             setButtonLiked('comment-like-button-' + commentId, false)
+            let likesElement = document.getElementById('comment-likes-count-' + commentId)
+            likesElement.innerHTML = parseInt(likesElement.innerHTML) - 1
           }
         }));
     }
@@ -186,6 +193,10 @@
         likeButton.classList.remove("liked")
         likeButton.innerHTML = "Like!"
       }
+    }
+
+    function setLikes(elementName, newValue) {
+      document.getElementById(elementName).innerHTML = `${newValue} Likes`
     }
 
     // If the user liked the post, set it to Liked
