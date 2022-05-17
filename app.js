@@ -400,10 +400,16 @@ function checkAuthenticated(req, res, next) {
     res.redirect('/login')
 }
 
-// route to profile page
-app.get('/profile', (req, res) => {
-    res.render('pages/profile')
-});
+app.get('/profile', checkAuthenticated, (req, res) => {
+    getUserById(req.user.user_id).then(user => {
+        res.render('pages/profile', {
+            username: user.username,
+            email: user.email,
+            upvotes_received: user.upvotes_received,
+            is_admin: user.is_admin? 'Yes' : 'No'
+        });
+    })
+})
 
 // Middleware function to check if user is NOT authenticated
 function checkNotAuthenticated(req, res, next) {
