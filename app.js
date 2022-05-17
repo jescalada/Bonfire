@@ -4,7 +4,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const express = require('express')
 const path = require('path')
-const mysql = require('mysql2/promise')
+const mysql = require('mysql2')
 const bcrypt = require('bcryptjs')
 const passport = require('passport')
 const flash = require('express-flash')
@@ -53,7 +53,7 @@ app.use(methodOverride('_method'))
 app.use(express.static(__dirname + '/public'));
 
 // Connection info should be obtained using a .env
-const pool = mysql.createPool({
+const connection = mysql.createConnection({
     connectionLimit: 10,
     host: 'bonfire-1.cdrbnm7ck3cj.us-east-2.rds.amazonaws.com',
     user: 'admin',
@@ -507,6 +507,36 @@ app.listen(port, () => {
 //     });
 //   })
 // }
+
+// Connects to the database and creates a tags table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function createTagsTable() {
+//     var sql = `CREATE TABLE tags (tag_id BIGINT NOT NULL AUTO_INCREMENT, tag_name VARCHAR(255), PRIMARY KEY (tag_id))`;
+//     connection.connect(function(err) {
+//       if (err) throw err;
+//       console.log("Connected at createTagsTable.");
+//       connection.query(sql, function (err, result) {
+//         if (err) throw err;
+//         console.log("TABLE tags created.");
+//       });
+//     })
+//   }
+
+// Connects to the database and creates a like_comment table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+function createPostTagsTable() {
+  var sql = `CREATE TABLE post_tags (post_tag_id BIGINT NOT NULL AUTO_INCREMENT, post_id BIGINT, tag_id BIGINT, PRIMARY KEY (post_tag_id), FOREIGN KEY (post_id) REFERENCES posts(post_id), FOREIGN KEY (tag_id) REFERENCES tags(tag_id))`;
+  connection.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected at createLikedCommentTable.");
+    connection.query(sql, function (err, result) {
+      if (err) throw err;
+      console.log("TABLE liked_comments created.");
+    });
+  })
+}
+
+createPostTagsTable();
 
 // Connects to the database and creates a like_comment table
 // This function is commented out, because it CANNOT be used with mysql connection pools
