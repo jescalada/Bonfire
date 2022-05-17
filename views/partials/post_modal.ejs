@@ -21,19 +21,45 @@
             <script>
               let postTags = [];
 
+              function addTag() {
+                let inputBox = document.getElementById("tagInput");
+                let tagName = inputBox.value;
+                inputBox.value = "";
+                postTags.push(tagName);
+                console.log(postTags);
+                let tagContainer = document.getElementById("tagContainer");
+                let tagHTML = `<span class="badge rounded-pill bg-primary">${tagName}</span>`;
+                tagContainer.innerHTML += tagHTML;
+              }
+
+              async function submitPost() {
+                let postTitle = document.getElementById("postTitle").value;
+                let postContent = document.getElementById("postContent").value;
+                let data = {
+                  postTitle: postTitle,
+                  postContent: postContent,
+                  postTags: postTags
+                }
+                fetch('/post', {
+                  method: 'POST',
+                  body: JSON.stringify(data),
+                  headers: {
+                    'Content-type': 'application/json'
+                  }
+                }).then(response => response.json().then((data) => {
+                  console.log(data);
+                }));
+              }
             </script>
             <label for="postTags" class="col-form-label">Tags</label>
-            <div>
-              <input type="text" class="form-control" id="tagInput" style="max-width: 40%; display: inline;">
-              <div id="addTag" class="btn btn-primary"><i class="zmdi zmdi-edit"></i></div>
-              <span class="badge rounded-pill bg-primary">Primary</span>
-              <span class="badge rounded-pill bg-primary">Primary</span>
-              <span class="badge rounded-pill bg-primary">Primary</span>
-              <span class="badge rounded-pill bg-primary">Primary</span>
+            <div id="tagContainer">
+              <input type="text" class="form-control" id="tagInput"
+                style="max-width: 40%; display: inline; vertical-align: middle;">
+              <div onclick="addTag()" id="addTag" class="btn btn-primary"><i class="zmdi zmdi-edit"></i></div>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Post</button>
+            <button type="button" onclick="submitPost()" class="btn btn-primary">Post</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
         </form>

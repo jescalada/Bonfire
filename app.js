@@ -328,7 +328,7 @@ function addNewComment(post_id, commenter_id, commentContent, commenterUsername)
 
 // POST post page
 app.post('/post', checkAuthenticated, async(req, res) => {
-    addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username, req.body.tags)
+    console.log(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username, req.body.postTags)
     res.redirect('/') // Redirect to login page on success
 })
 
