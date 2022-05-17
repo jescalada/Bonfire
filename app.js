@@ -89,7 +89,30 @@ async function addNewPost(posterId, postTitle, postContent, posterUsername, post
     
     var sql = `INSERT INTO posts (poster_id, upvotes_received, post_title, post_content, poster_username) values
   ('${posterId}', '0','${postTitle}', '${postContent}', '${posterUsername}');`;
-    pool.query(sql);
+    pool.query(sql, (error, results, fields) => {
+        if (error) throw error;
+        let postId = results.insertId;
+
+        postTags.forEach(async (tagString) => {
+            const tag = await getTag(tagString)
+            if (!tag) {
+                addNewTag(tagString)
+            }
+            addTagToPost(tagId, postId)
+        });
+    });
+    
+}
+
+async function addTagToPost(tagId, postId) {
+    let sql = `INSERT INTO post_tags (tag_id, post_id) values ('${tagId}', '${postId}')`
+    pool.query(sql)
+}
+
+async function getPostTags(postId) {
+    let sql = `SELECT tag_name from post_tags LEFT_JOIN tags ON tags.tag_id=post_tags.tag_id WHERE post_tags.post_id='${postId}'`
+    let [rows, fields] = await pool.execute(sql);
+    return rows;
 }
 
 // Checks if an email is in the database
