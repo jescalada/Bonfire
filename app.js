@@ -4,7 +4,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const express = require('express')
 const path = require('path')
-const mysql = require('mysql2')
+const mysql = require('mysql2/promise')
 const bcrypt = require('bcryptjs')
 const passport = require('passport')
 const flash = require('express-flash')
@@ -53,7 +53,7 @@ app.use(methodOverride('_method'))
 app.use(express.static(__dirname + '/public'));
 
 // Connection info should be obtained using a .env
-const connection = mysql.createConnection({
+const pool = mysql.createPool({
     connectionLimit: 10,
     host: 'bonfire-1.cdrbnm7ck3cj.us-east-2.rds.amazonaws.com',
     user: 'admin',
@@ -64,16 +64,29 @@ const connection = mysql.createConnection({
 // Connects to the database and adds a new user entry
 function addNewUser(username, email, encrypted_password, isAdmin) {
     var sql = `INSERT INTO users (username, email, upvotes_received, upvotes_given, encrypted_password, is_admin) values
-  ('${username}', '${email}','0', '0', '${encrypted_password}', ${isAdmin});`;
-    pool.query(sql);
+  ('${username}', '${email}','0', '0', '${encrypted_password}', ${isAdmin});`
+    pool.query(sql)
 }
 
-// // Connects to the database and adds a new post entry
-// // var sql = `CREATE TABLE posts (post_id BIGINT NOT NULL AUTO_INCREMENT, poster_id BIGINT, upvotes_received BIGINT, post_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (post_id), FOREIGN KEY (poster_id) REFERENCES users(user_id))`;
-function addNewPost(posterId, postTitle, postContent, posterUsername) {
+async function getTag(tagName) {
+    let sql = `SELECT * FROM tags WHERE tag_name='${tagName}';`
+    let [rows, fields] = await pool.execute(sql, [1, 1])
+    return rows[0]
+}
+
+// Adds a new tag to the database
+function addNewTag(tagName) {
+    let sql = `INSERT INTO tags (tag_name) values (${tagName});`
+    pool.query(sql)
+}
+
+// Connects to the database and adds a new post entry
+// var sql = `CREATE TABLE posts (post_id BIGINT NOT NULL AUTO_INCREMENT, poster_id BIGINT, upvotes_received BIGINT, post_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (post_id), FOREIGN KEY (poster_id) REFERENCES users(user_id))`;
+async function addNewPost(posterId, postTitle, postContent, posterUsername, postTags) {
     // Adds escape characters to ' in order to make SQL queries work properly with apostrophes
     postTitle = postTitle.replaceAll("'", "''")
     postContent = postContent.replaceAll("'", "''")
+    
     var sql = `INSERT INTO posts (poster_id, upvotes_received, post_title, post_content, poster_username) values
   ('${posterId}', '0','${postTitle}', '${postContent}', '${posterUsername}');`;
     pool.query(sql);
@@ -292,7 +305,7 @@ function addNewComment(post_id, commenter_id, commentContent, commenterUsername)
 
 // POST post page
 app.post('/post', checkAuthenticated, async(req, res) => {
-    addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username)
+    addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username, req.body.tags)
     res.redirect('/') // Redirect to login page on success
 })
 
@@ -524,19 +537,17 @@ app.listen(port, () => {
 
 // Connects to the database and creates a like_comment table
 // This function is commented out, because it CANNOT be used with mysql connection pools
-function createPostTagsTable() {
-  var sql = `CREATE TABLE post_tags (post_tag_id BIGINT NOT NULL AUTO_INCREMENT, post_id BIGINT, tag_id BIGINT, PRIMARY KEY (post_tag_id), FOREIGN KEY (post_id) REFERENCES posts(post_id), FOREIGN KEY (tag_id) REFERENCES tags(tag_id))`;
-  connection.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected at createLikedCommentTable.");
-    connection.query(sql, function (err, result) {
-      if (err) throw err;
-      console.log("TABLE liked_comments created.");
-    });
-  })
-}
-
-createPostTagsTable();
+// function createPostTagsTable() {
+//   var sql = `CREATE TABLE post_tags (post_tag_id BIGINT NOT NULL AUTO_INCREMENT, post_id BIGINT, tag_id BIGINT, PRIMARY KEY (post_tag_id), FOREIGN KEY (post_id) REFERENCES posts(post_id), FOREIGN KEY (tag_id) REFERENCES tags(tag_id))`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createPostTagsTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE post_tags created.");
+//     });
+//   })
+// }
 
 // Connects to the database and creates a like_comment table
 // This function is commented out, because it CANNOT be used with mysql connection pools
