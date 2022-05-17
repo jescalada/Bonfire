@@ -17,6 +17,21 @@
             <label for="postContent" class="col-form-label">Content</label>
             <textarea class="form-control" id="postContent" name="postContent"></textarea>
           </div>
+          <div class="mb-3">
+            <script>
+              let postTags = [];
+
+            </script>
+            <label for="postTags" class="col-form-label">Tags</label>
+            <div>
+              <input type="text" class="form-control" id="tagInput" style="max-width: 40%; display: inline;">
+              <div id="addTag" class="btn btn-primary"><i class="zmdi zmdi-edit"></i></div>
+              <span class="badge rounded-pill bg-primary">Primary</span>
+              <span class="badge rounded-pill bg-primary">Primary</span>
+              <span class="badge rounded-pill bg-primary">Primary</span>
+              <span class="badge rounded-pill bg-primary">Primary</span>
+            </div>
+          </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-primary">Post</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
