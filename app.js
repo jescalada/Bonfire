@@ -75,9 +75,9 @@ async function getTag(tagName) {
 }
 
 // Adds a new tag to the database
-function addNewTag(tagName) {
-    let sql = `INSERT INTO tags (tag_name) values (${tagName});`
-    pool.query(sql)
+async function addNewTag(tagName) {
+    let sql = `INSERT INTO tags (tag_name) values ('${tagName}');`
+    return await pool.query(sql)
 }
 
 // Connects to the database and adds a new post entry
@@ -89,20 +89,31 @@ async function addNewPost(posterId, postTitle, postContent, posterUsername, post
     
     var sql = `INSERT INTO posts (poster_id, upvotes_received, post_title, post_content, poster_username) values
   ('${posterId}', '0','${postTitle}', '${postContent}', '${posterUsername}');`;
-    pool.query(sql, (error, results, fields) => {
-        if (error) throw error;
-        let postId = results.insertId;
+    let post = await pool.query(sql)
+    let postId = post[0].insertId
 
-        postTags.forEach(async (tagString) => {
-            const tag = await getTag(tagString)
-            if (!tag) {
-                addNewTag(tagString)
-            }
-            addTagToPost(tagId, postId)
-        });
+    postTags.forEach(async (tagString) => {
+        tagString = tagString.replaceAll("'", "''")
+        let tag = await getTag(tagString)
+        var tagId;
+        if (!tag) {
+            tag = await addNewTag(tagString)
+            tagId = tag.insertId
+        } else {
+            tagId = tag.tag_id
+        }
+        console.log(tag)
+        console.log(tagId)
+        console.log("post ID is: " + postId)
+        // addTagToPost(tagId, postId)  
     });
     
+    
 }
+
+// addNewTag("Technology");
+// addNewTag("Philosophy");
+// addNewTag("Science");
 
 async function addTagToPost(tagId, postId) {
     let sql = `INSERT INTO post_tags (tag_id, post_id) values ('${tagId}', '${postId}')`
@@ -328,7 +339,7 @@ function addNewComment(post_id, commenter_id, commentContent, commenterUsername)
 
 // POST post page
 app.post('/post', checkAuthenticated, async(req, res) => {
-    console.log(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username, req.body.postTags)
+    addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username, req.body.postTags)
     res.redirect('/') // Redirect to login page on success
 })
 
