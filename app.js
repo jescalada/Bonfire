@@ -97,13 +97,15 @@ async function addNewPost(posterId, postTitle, postContent, posterUsername, post
         let tag = await getTag(tagString)
         var tagId;
         if (!tag) {
+            console.log("No tag found.")
             tag = await addNewTag(tagString)
-            tagId = tag.insertId
+            console.log("Tag added!")
+            tagId = tag[0].insertId
         } else {
             tagId = tag.tag_id
         }
-        console.log(tag)
-        console.log(tagId)
+        console.log(` Tag is ${tag}`)
+        console.log(`Tag ID is ${tagId}`)
         console.log("post ID is: " + postId)
         // addTagToPost(tagId, postId)  
     });
