@@ -168,11 +168,9 @@ async function deleteUserById(id) {
 // Deletes the post with then given id from the database
 async function deletePostById(id) {
     var unsetCheck = `SET FOREIGN_KEY_CHECKS=0`
-    var setCheck = `SET FOREIGN_KEY_CHECKS=1`
     var sql = `DELETE FROM posts WHERE post_id='${id}'`;
     await pool.query(unsetCheck);
     await pool.execute(sql, [1, 1]);
-    await pool.query(setCheck);
 }
 
 // GET landing page. Gets all the posts from the backend and displays them.
