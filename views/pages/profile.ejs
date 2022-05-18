@@ -12,7 +12,7 @@
         <%- include('../partials/header'); %>
     </header>
     <main>
-        <div class="row">
+        <div class="row ml-1">
             <div class="container mt-4 mb-4 p-3 d-flex col-3">
                 <div class="card p-4">                                                                                                      
                     <div class=" image d-flex flex-column justify-content-center align-items-center"> <button class="btn btn-secondary"> <img src="https://i.imgur.com/wvxPV9S.png" height="100" width="100" /></button> <span class="name mt-3"><%= username %></span> <span class="idd">@<%= username %></span>
@@ -29,11 +29,11 @@
                 </div>
             </div>
             <div class="col-9">
-                <div class="h4 mt-3">My posts </div>
+                <div class="h4 mt-3 p-1">My posts </div>
                 <div class="container">
                     <% posts.forEach(function(row) { %>
                       <div class="row">
-                        <div class="card col m-3">
+                        <div class="card col m-1">
                           <div class="card-body">
                             <div class="row flex-row">
                               <h5 class="card-title col-md-8 post-title-text"><%= row.post_title %></h5>
