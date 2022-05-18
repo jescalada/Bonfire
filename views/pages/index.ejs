@@ -10,7 +10,7 @@
   </style>
 </head>
 
-<body class="container">
+<body class="container flex-row">
 
   <header>
     <%- include('../partials/header'); %>
@@ -18,16 +18,17 @@
 
   <main>
     <div class="container">
-      <h1 class="header-title">Feed</h1>
-      <p class="header-welcome">Welcome back, <%= user.username %>. These are some of the <span id="trigger" onclick="easterEgg()">HOT</span> topics of the day.</p>
+      <h1 class="header-title my-4">Feed</h1>
+      <p class="header-welcome">Welcome back, <%= user.username %>.</p>
+      <p class="header-welcome mb-4">These are some of the <span id="trigger" onclick="easterEgg()">HOT</span> topics of the day.</p>
       
-      <div class="row">
+      <div class="mb-3">
         <form action="/logout?_method=DELETE" method="POST" class="col mx-2">
           <button type="submit" class="btn btn-primary">Log Out</button>
         </form>
   
         <% if (user.is_admin) { %>
-          <a class="btn btn-primary col" href="/admin">Admin Dashboard</a>
+          <a class="btn btn-primary col mx-2 mt-3" href="/admin">Admin Dashboard</a>
         <% } %>
       </div>
       
@@ -36,7 +37,7 @@
     <%- include('../partials/post_modal'); %>
 
     <!-- discussion cards -->
-    <div class="container">
+    <div class="container mt-2">
       <% posts.forEach(function(row) { %>
       <div class="row">
         <div class="card col m-3">
@@ -79,7 +80,7 @@
               </div>
 
 
-              <p class="col-4 post-timestamp-text"><%= row.post_timestamp.toString().substring(0, 24) %></p>
+              <p class="col-4 post-timestamp-text"><%= row.post_timestamp.toString().substring(4, 24) %></p>
             </div>
           </div>
         </div>
@@ -101,13 +102,13 @@
     function easterEgg() {
       console.log("triggered");
       startAnimation();
-      setTimeout(endAnimation, 5000);
+      setTimeout(endAnimation, 10000);
     }
 
     function startAnimation() {
-      trigger.style.fontSize = "300%";
+      trigger.style.fontSize = "200%";
       trigger.style.fontWeight = "bold";
-      body.style.backgroundImage = "url('/images/bonfire.gif')";
+      body.style.backgroundImage = "url('/images/bonfire2.gif')";
       body.style.backgroundSize = "contain";
       body.style.backgroundRepeat = "no-repeat";
     }
