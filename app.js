@@ -411,6 +411,19 @@ app.get('/profile', checkAuthenticated, (req, res) => {
     })
 })
 
+app.get('/profile/posts', checkAuthenticated, (req, res) => {
+    getAllPostsByUserID.then(user => {
+        res.render('pages/profile', {
+            poster_id: row.poster_id,
+            upvotes_received: row.upvotes_received,
+            post_timestamp: row.post_timestamp,
+            post_title: row.post_title,
+            post_content: row.post_content
+        });
+    })
+})
+
+
 // Middleware function to check if user is NOT authenticated
 function checkNotAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
@@ -437,6 +450,12 @@ async function getAllUsers() {
 async function getAllPosts() {
     let [rows, fields] = await pool.execute('SELECT * FROM posts', [1, 1]);
     return [rows, fields];
+}
+
+// Gets all the posts from a particular user. Returns a weird SQL object thingy.
+async function getAllPostsByUserID() {
+    let [rows, fields] = await pool.execute(`SELECT * FROM posts' WHERE poster_id='${user_id}`, [1, 1]);
+    return [rows, fields]; 
 }
 
 // Tells our app to listen to a certain port
