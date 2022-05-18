@@ -3,7 +3,7 @@ body {
 }
 
 header {
-    background-color: #4B6196 !important;
+    background-color: #5b4b96 !important;
 }
 
 a:hover {
@@ -70,10 +70,14 @@ a:hover {
 
 .btn,
 .btn-primary {
-    background-color: #7E90BF !important;
+    background-color: #7e80bf !important;
     border-radius: 10rem !important;
     color: white !important;
     font-weight: bold !important;
     border: none !important;
     margin: 0.2rem 0rem;
+}
+
+.badge {
+    font-size: 0.8rem !important;
 }
