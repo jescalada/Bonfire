@@ -45,9 +45,9 @@ a:hover {
 @media only screen and (max-width: 768px) {
     .post-username-text,
     .post-upvotes-text {
-      text-align: left;
+    text-align: left;
     }
-  }
+}
 
 .unliked {
     font-weight: bold;
@@ -70,7 +70,7 @@ a:hover {
 
 .btn,
 .btn-primary {
-    background-color: #7e80bf !important;
+    background-color: #471675 !important;
     border-radius: 10rem !important;
     color: white !important;
     font-weight: bold !important;
