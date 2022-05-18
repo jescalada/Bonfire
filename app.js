@@ -81,7 +81,6 @@ async function addNewTag(tagName) {
 }
 
 // Connects to the database and adds a new post entry
-// var sql = `CREATE TABLE posts (post_id BIGINT NOT NULL AUTO_INCREMENT, poster_id BIGINT, upvotes_received BIGINT, post_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (post_id), FOREIGN KEY (poster_id) REFERENCES users(user_id))`;
 async function addNewPost(posterId, postTitle, postContent, posterUsername, postTags) {
     // Adds escape characters to ' in order to make SQL queries work properly with apostrophes
     postTitle = postTitle.replaceAll("'", "''")
@@ -91,31 +90,22 @@ async function addNewPost(posterId, postTitle, postContent, posterUsername, post
   ('${posterId}', '0','${postTitle}', '${postContent}', '${posterUsername}');`;
     let post = await pool.query(sql)
     let postId = post[0].insertId
-
+    // For each tag in the post, check if the tag exists or not and adds the post_tag rows to DB
     postTags.forEach(async (tagString) => {
         tagString = tagString.replaceAll("'", "''")
         let tag = await getTag(tagString)
         var tagId;
         if (!tag) {
-            console.log("No tag found.")
             tag = await addNewTag(tagString)
-            console.log("Tag added!")
             tagId = tag[0].insertId
         } else {
             tagId = tag.tag_id
         }
-        console.log(` Tag is ${tag}`)
-        console.log(`Tag ID is ${tagId}`)
-        console.log("post ID is: " + postId)
-        // addTagToPost(tagId, postId)  
+        addTagToPost(tagId, postId)
     });
     
     
 }
-
-// addNewTag("Technology");
-// addNewTag("Philosophy");
-// addNewTag("Science");
 
 async function addTagToPost(tagId, postId) {
     let sql = `INSERT INTO post_tags (tag_id, post_id) values ('${tagId}', '${postId}')`
