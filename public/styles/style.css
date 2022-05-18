@@ -1,5 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,400;1,700&family=Montserrat:wght@500;600;700&family=Roboto:wght@300;700&display=swap');
+
+
 body {
     background-color: #F3F4F7 !important;
+    margin: auto !important;
+    padding: 0 !important;
 }
 
 header {
@@ -50,12 +55,12 @@ a:hover {
 }
 
 .unliked {
-    font-weight: bold;
+    font-weight: 700;
     color: green;
 }
 
 .liked {
-    font-weight: bold;
+    font-weight: 700;
     color: red;
 }
 
@@ -68,9 +73,34 @@ a:hover {
     text-decoration: underline;
 }
 
-.btn,
 .btn-primary {
-    background-color: #471675 !important;
+    background-color: #806dc4 !important;
+    border-radius: 10rem !important;
+    color: white !important;
+    font-weight: bold !important;
+    border: none !important;
+    margin: 0.2rem 0rem;
+}
+
+.btn-outline-primary {
+    border-color: #806dc4 !important;
+    border-radius: 10rem !important;
+    color: #806dc4 !important;
+    font-weight: bold !important;
+    margin: 0.2rem 0rem;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:active {
+    border-color: #806dc4 !important;
+    background-color: #806dc4 !important;
+    border-radius: 10rem !important;
+    color: white !important;
+    font-weight: bold !important;
+    margin: 0.2rem 0rem;
+}
+
+.btn-danger {
+    background-color: #da4d4d !important;
     border-radius: 10rem !important;
     color: white !important;
     font-weight: bold !important;
@@ -80,4 +110,14 @@ a:hover {
 
 .badge {
     font-size: 0.8rem !important;
+}
+
+h1, h2, h5 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+p {
+    font-family: 'Roboto', Arial, Helvetica, sans-serif;
 }

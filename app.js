@@ -114,7 +114,6 @@ async function addTagToPost(tagId, postId) {
 async function getPostTags(postId) {
     let sql = `SELECT * from post_tags LEFT JOIN tags ON tags.tag_id=post_tags.tag_id WHERE post_tags.post_id='${postId}'`
     let [rows, fields] = await pool.execute(sql, [1, 1])
-    console.log(rows)
     return rows
 }
 
@@ -163,6 +162,14 @@ async function getUserById(id) {
 // Deletes the user with then given id from the database
 async function deleteUserById(id) {
     var sql = `DELETE FROM users WHERE user_id='${id}'`;
+    await pool.execute(sql, [1, 1]);
+}
+
+// Deletes the post with then given id from the database
+async function deletePostById(id) {
+    var unsetCheck = `SET FOREIGN_KEY_CHECKS=0`
+    var sql = `DELETE FROM posts WHERE post_id='${id}'`;
+    await pool.query(unsetCheck);
     await pool.execute(sql, [1, 1]);
 }
 
@@ -268,6 +275,15 @@ async function getPostById(id) {
         return null
     }
 }
+
+app.delete('/post', checkAuthenticated, async(req, res) => {
+    deletePostById(req.body.postId).then((result) => {
+        console.log(result);
+        res.json({
+            success: true
+        })    
+    })
+})
 
 // Renders the single post page with "GET" method 
 app.get('/post/:postid', checkAuthenticated, async(req, res) => {
