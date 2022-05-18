@@ -113,16 +113,17 @@ async function addTagToPost(tagId, postId) {
 }
 
 async function getPostTags(postId) {
-    let sql = `SELECT tag_name from post_tags LEFT_JOIN tags ON tags.tag_id=post_tags.tag_id WHERE post_tags.post_id='${postId}'`
-    let [rows, fields] = await pool.execute(sql);
-    return rows;
+    let sql = `SELECT * FROM post_tags INNER JOIN post_tags ON tags.tag_id=post_tags.tag_id WHERE post_id='${postId}'`
+    let [rows, fields] = await pool.execute(sql, [1, 1])
+    console.log(rows)
+    return rows
 }
 
 // Checks if an email is in the database
 // Returns an object representing a user, or null
 async function getUserByEmail(email) {
-    var sql = `SELECT * FROM users WHERE email='${email}'`;
-    let [rows, fields] = await pool.execute(sql, [1, 1]);
+    var sql = `SELECT * FROM users WHERE email='${email}'`
+    let [rows, fields] = await pool.execute(sql, [1, 1])
     let row = rows[0]
     if (row) {
         return {
@@ -269,13 +270,14 @@ async function getPostById(id) {
     }
 }
 
-// render the single post page with "get" method 
+// Renders the single post page with "GET" method 
 app.get('/post/:postid', checkAuthenticated, async(req, res) => {
     let post = await getPostById(req.params.postid)
     let poster = await getUserById(post.poster_id)
     let rows = await getCommentsByPostId(req.params.postid)
     let isLiked = await checkLikedPost(req.user.user_id, req.params.postid)
     let likedComments = await getLikedCommentsByPostId(req.params.postid, req.user.user_id)
+    let tags = await getPostTags(req.params.postid)
     res.render('pages/post', {
         row: post,
         poster: poster,
@@ -283,6 +285,7 @@ app.get('/post/:postid', checkAuthenticated, async(req, res) => {
         is_liked: isLiked,
         liked_comments: likedComments,
         user_id: req.user.user_id,
+        tags: tags
     })
 })
 
@@ -310,7 +313,6 @@ async function getCommentsByPostId(id) {
 async function getLikedCommentsByPostId(id, userId) {
     var sql = `SELECT * FROM comments LEFT JOIN liked_comments ON comments.comment_id=liked_comments.comment_id WHERE post_id='${id}' AND liker_id='${userId}'`;
     let [rows, fields] = await pool.execute(sql, [1, 1]);
-    // let row = rows[0];
     if (rows) {
         console.log(rows)
         return rows
