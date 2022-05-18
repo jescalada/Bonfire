@@ -47,7 +47,11 @@
                     'Content-type': 'application/json'
                   }
                 }).then(response => response.json().then((data) => {
-                  console.log(data);
+                  if (data.success) {
+                    window.location.href = `/post/${data.postId}`;
+                  } else {
+                    console.log("There was an error while posting!");
+                  }
                 }));
               }
             </script>
