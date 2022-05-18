@@ -280,6 +280,7 @@ app.get('/post/:postid', checkAuthenticated, async(req, res) => {
     res.render('pages/post', {
         row: post,
         poster: poster,
+        poster_id: post.poster_id,
         comments: rows,
         is_liked: isLiked,
         liked_comments: likedComments,
@@ -452,6 +453,19 @@ function checkAuthenticated(req, res, next) {
 app.get('/profile', checkAuthenticated, async (req, res) => {
     const user = await getUserById(req.user.user_id)
     const posts = await getAllPostsByUserID(req.user.user_id)
+
+    res.render('pages/profile', {
+        username: user.username,
+        email: user.email,
+        upvotes_received: user.upvotes_received,
+        is_admin: user.is_admin? 'Yes' : 'No',
+        posts: posts,
+    });
+})
+
+app.get('/profile/:id', checkAuthenticated, async (req, res) => {
+    const user = await getUserById(req.params.id)
+    const posts = await getAllPostsByUserID(req.params.id)
 
     res.render('pages/profile', {
         username: user.username,
