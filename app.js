@@ -313,7 +313,6 @@ async function getLikedCommentsByPostId(id, userId) {
     var sql = `SELECT * FROM comments LEFT JOIN liked_comments ON comments.comment_id=liked_comments.comment_id WHERE post_id='${id}' AND liker_id='${userId}'`;
     let [rows, fields] = await pool.execute(sql, [1, 1]);
     if (rows) {
-        console.log(rows)
         return rows
     } else {
         return null
