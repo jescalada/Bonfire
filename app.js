@@ -80,7 +80,7 @@ async function addNewTag(tagName) {
     return await pool.query(sql)
 }
 
-// Connects to the database and adds a new post entry
+// Connects to the database and adds a new post entry, returns the post id
 async function addNewPost(posterId, postTitle, postContent, posterUsername, postTags) {
     // Adds escape characters to ' in order to make SQL queries work properly with apostrophes
     postTitle = postTitle.replaceAll("'", "''")
@@ -103,8 +103,7 @@ async function addNewPost(posterId, postTitle, postContent, posterUsername, post
         }
         addTagToPost(tagId, postId)
     });
-    
-    
+    return postId
 }
 
 async function addTagToPost(tagId, postId) {
@@ -113,7 +112,7 @@ async function addTagToPost(tagId, postId) {
 }
 
 async function getPostTags(postId) {
-    let sql = `SELECT * FROM post_tags INNER JOIN post_tags ON tags.tag_id=post_tags.tag_id WHERE post_id='${postId}'`
+    let sql = `SELECT * from post_tags LEFT JOIN tags ON tags.tag_id=post_tags.tag_id WHERE post_tags.post_id='${postId}'`
     let [rows, fields] = await pool.execute(sql, [1, 1])
     console.log(rows)
     return rows
@@ -333,8 +332,18 @@ function addNewComment(post_id, commenter_id, commentContent, commenterUsername)
 
 // POST post page
 app.post('/post', checkAuthenticated, async(req, res) => {
-    addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username, req.body.postTags)
-    res.redirect('/') // Redirect to login page on success
+    let postId = await addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username, req.body.postTags)
+    if (!postId) {
+        res.json({
+            postId: null,
+            success: false
+        })
+    } else {
+        res.json({
+          postId: postId,
+          success: true
+        })
+    }
 })
 
 // A route that toggles a post like. Likes a post if it is not liked, unlikes it otherwise.
