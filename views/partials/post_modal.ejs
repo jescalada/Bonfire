@@ -12,11 +12,11 @@
         <form action="/post" method="post">
           <div class="mb-3">
             <label for="postTitle" class="col-form-label">Post Title</label>
-            <input type="text" class="form-control" id="postTitle" name="postTitle">
+            <input type="text" class="form-control" id="postTitle" name="postTitle" maxlength="100">
           </div>
           <div class="mb-3">
             <label for="postContent" class="col-form-label">Content</label>
-            <textarea class="form-control" id="postContent" name="postContent"></textarea>
+            <textarea class="form-control" id="postContent" name="postContent" minlength="250"></textarea>
           </div>
           <div class="mb-3">
             <script>
