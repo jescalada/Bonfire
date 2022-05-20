@@ -3,39 +3,43 @@
 
 <head>
   <%- include('../partials/head'); %>
-    <style>
-      .img-thumbnail {
-        display: inline;
-      }
-      h1 {text-align: center;}
-      p {text-align: center;}
-      div {text-align: center;}
-    </style>
+  <style>
+    .img-thumbnail {
+      display: inline;
+    }
+    h1 {text-align: center;}
+    p {text-align: center;} 
+    div {text-align: center;}
+  </style>
 </head>
 
 <body class="container">
 
-  <header>
+  <!-- <header>
     <%- include('../partials/header'); %>
-  </header>
+  </header> -->
 
   <main>
+    <a href="/login" class="btn btn-outline-secondary" role="button">Home</a> 
     <div>
-      <br>
-      <h2 style="">Our Mission</h2>
-      <p>Our vision for Bonfire is to create a safe space for meaningful discourse, free of bias, and censorship.</p>
-      <h4>How will we do that?</h4>
-      <p>The feature that differentiates us from other social media apps is incorporating a 250-character minimum per post.
-      While social media giants usually have character <i>limits</i>, Bonfire decided to implement a minimum character count.
+      <img src="/images/bonfire.gif"width="250" height="250" class="d-inline-block align-text-top"> 
+    </div>
+    <div class="container p-2">
+      <h2 class="m2">Our Mission</h2>
+      <p class="m2">Our vision for Bonfire is to create a safe space for meaningful discourse, free of bias, and censorship.</p>
+      <h4 class="m2">How will we do that?</h4>
+      <p class="m2">The feature that differentiates us from other social media apps is incorporating a 250-character minimum per
+        post.
+      While social media giants usually have character <i>limits</i>, Bonfire decided to implement a minimum
+        character count.
       This relieves the platform of:
-        <ul>
-          - Posts and comments that do not promote discussion. <i>(Example: "lol")</i>
-        </ul>
-        <ul>
-          - Bots and mass-generated accounts used to manipulate like counts.
-        </ul>
-        With this feature present, users can use the platform without having to worry about spam comments that may not contribute to discussions.
-      </p> 
+      <ul style="list-style:lower-latin;">
+        <li>Posts and comments that do not promote discussion. <i>(Example: "lol")</i></li>
+        <li>Bots and mass-generated accounts used to manipulate like counts.</li>
+      </ul>
+        With this feature present, users can use the platform without having to worry about spam comments that may not
+        contribute to discussions.
+      </p>
     </div>
   </main>
 
