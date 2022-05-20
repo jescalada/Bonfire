@@ -20,7 +20,7 @@
               <div class="card-body">
                 <div class="d-flex flex-start align-items-center">
                   <img class="rounded-circle shadow-1-strong me-3"
-                    src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp" alt="avatar" width="60"
+                    src="https://soccerpointeclaire.com/wp-content/uploads/2021/06/default-profile-pic-e1513291410505.jpg" alt="avatar" width="60"
                     height="60" />
                   <div>
                     <a href="/profile/<%= poster_id %>" class="h6 fw-bold text-primary mb-1"
@@ -92,9 +92,9 @@
 
                     <div class="d-flex justify-content-between">
                       <div class="d-flex flex-row align-items-center">
-                        <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(4).webp" alt="avatar" width="25"
+                        <img src="https://soccerpointeclaire.com/wp-content/uploads/2021/06/default-profile-pic-e1513291410505.jpg" alt="avatar" width="25"
                           height="25" />
-                        <a href="/profile/<%= poster_id %>" class="small mb-0 ms-2" style="text-decoration:none"><%= row.commenter_username %></a>
+                        <a href="/profile/<%= row.commenter_id %>" class="small mb-0 ms-2" style="text-decoration:none"><%= row.commenter_username %></a>
                       </div>
                       <div class="d-flex flex-row align-items-center">
                         <a onclick="likeComment('<%= row.comment_id %>', '<%= user_id %>')"
