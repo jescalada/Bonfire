@@ -278,7 +278,6 @@ async function getPostById(id) {
 
 app.delete('/post', checkAuthenticated, async(req, res) => {
     deletePostById(req.body.postId).then((result) => {
-        console.log(result);
         res.json({
             success: true
         })    
@@ -528,7 +527,7 @@ async function getAllPostsByUserID(user_id) {
 
 // Tells our app to listen to a certain port
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    console.log(`Bonfire listening on port ${port}`)
 })
 
 // Connects to the database (service) and creates a database
