@@ -64,26 +64,64 @@ const pool = mysql.createPool({
 // Connects to the database and adds a new user entry
 function addNewUser(username, email, encrypted_password, isAdmin) {
     var sql = `INSERT INTO users (username, email, upvotes_received, upvotes_given, encrypted_password, is_admin) values
-  ('${username}', '${email}','0', '0', '${encrypted_password}', ${isAdmin});`;
-    pool.query(sql);
+  ('${username}', '${email}','0', '0', '${encrypted_password}', ${isAdmin});`
+    pool.query(sql)
 }
 
-// // Connects to the database and adds a new post entry
-// // var sql = `CREATE TABLE posts (post_id BIGINT NOT NULL AUTO_INCREMENT, poster_id BIGINT, upvotes_received BIGINT, post_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (post_id), FOREIGN KEY (poster_id) REFERENCES users(user_id))`;
-function addNewPost(posterId, postTitle, postContent, posterUsername) {
+async function getTag(tagName) {
+    let sql = `SELECT * FROM tags WHERE tag_name='${tagName}';`
+    let [rows, fields] = await pool.execute(sql, [1, 1])
+    return rows[0]
+}
+
+// Adds a new tag to the database
+async function addNewTag(tagName) {
+    let sql = `INSERT INTO tags (tag_name) values ('${tagName}');`
+    return await pool.query(sql)
+}
+
+// Connects to the database and adds a new post entry, returns the post id
+async function addNewPost(posterId, postTitle, postContent, posterUsername, postTags) {
     // Adds escape characters to ' in order to make SQL queries work properly with apostrophes
     postTitle = postTitle.replaceAll("'", "''")
     postContent = postContent.replaceAll("'", "''")
+    
     var sql = `INSERT INTO posts (poster_id, upvotes_received, post_title, post_content, poster_username) values
   ('${posterId}', '0','${postTitle}', '${postContent}', '${posterUsername}');`;
-    pool.query(sql);
+    let post = await pool.query(sql)
+    let postId = post[0].insertId
+    // For each tag in the post, check if the tag exists or not and adds the post_tag rows to DB
+    postTags.forEach(async (tagString) => {
+        tagString = tagString.replaceAll("'", "''")
+        let tag = await getTag(tagString)
+        var tagId;
+        if (!tag) {
+            tag = await addNewTag(tagString)
+            tagId = tag[0].insertId
+        } else {
+            tagId = tag.tag_id
+        }
+        addTagToPost(tagId, postId)
+    });
+    return postId
+}
+
+async function addTagToPost(tagId, postId) {
+    let sql = `INSERT INTO post_tags (tag_id, post_id) values ('${tagId}', '${postId}')`
+    pool.query(sql)
+}
+
+async function getPostTags(postId) {
+    let sql = `SELECT * from post_tags LEFT JOIN tags ON tags.tag_id=post_tags.tag_id WHERE post_tags.post_id='${postId}'`
+    let [rows, fields] = await pool.execute(sql, [1, 1])
+    return rows
 }
 
 // Checks if an email is in the database
 // Returns an object representing a user, or null
 async function getUserByEmail(email) {
-    var sql = `SELECT * FROM users WHERE email='${email}'`;
-    let [rows, fields] = await pool.execute(sql, [1, 1]);
+    var sql = `SELECT * FROM users WHERE email='${email}'`
+    let [rows, fields] = await pool.execute(sql, [1, 1])
     let row = rows[0]
     if (row) {
         return {
@@ -124,6 +162,14 @@ async function getUserById(id) {
 // Deletes the user with then given id from the database
 async function deleteUserById(id) {
     var sql = `DELETE FROM users WHERE user_id='${id}'`;
+    await pool.execute(sql, [1, 1]);
+}
+
+// Deletes the post with then given id from the database
+async function deletePostById(id) {
+    var unsetCheck = `SET FOREIGN_KEY_CHECKS=0`
+    var sql = `DELETE FROM posts WHERE post_id='${id}'`;
+    await pool.query(unsetCheck);
     await pool.execute(sql, [1, 1]);
 }
 
@@ -230,20 +276,31 @@ async function getPostById(id) {
     }
 }
 
-// render the single post page with "get" method 
+app.delete('/post', checkAuthenticated, async(req, res) => {
+    deletePostById(req.body.postId).then((result) => {
+        res.json({
+            success: true
+        })    
+    })
+})
+
+// Renders the single post page with "GET" method 
 app.get('/post/:postid', checkAuthenticated, async(req, res) => {
     let post = await getPostById(req.params.postid)
     let poster = await getUserById(post.poster_id)
     let rows = await getCommentsByPostId(req.params.postid)
     let isLiked = await checkLikedPost(req.user.user_id, req.params.postid)
     let likedComments = await getLikedCommentsByPostId(req.params.postid, req.user.user_id)
+    let tags = await getPostTags(req.params.postid)
     res.render('pages/post', {
         row: post,
         poster: poster,
+        poster_id: post.poster_id,
         comments: rows,
         is_liked: isLiked,
         liked_comments: likedComments,
         user_id: req.user.user_id,
+        tags: tags
     })
 })
 
@@ -271,9 +328,7 @@ async function getCommentsByPostId(id) {
 async function getLikedCommentsByPostId(id, userId) {
     var sql = `SELECT * FROM comments LEFT JOIN liked_comments ON comments.comment_id=liked_comments.comment_id WHERE post_id='${id}' AND liker_id='${userId}'`;
     let [rows, fields] = await pool.execute(sql, [1, 1]);
-    // let row = rows[0];
     if (rows) {
-        console.log(rows)
         return rows
     } else {
         return null
@@ -292,8 +347,18 @@ function addNewComment(post_id, commenter_id, commentContent, commenterUsername)
 
 // POST post page
 app.post('/post', checkAuthenticated, async(req, res) => {
-    addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username)
-    res.redirect('/') // Redirect to login page on success
+    let postId = await addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username, req.body.postTags)
+    if (!postId) {
+        res.json({
+            postId: null,
+            success: false
+        })
+    } else {
+        res.json({
+          postId: postId,
+          success: true
+        })
+    }
 })
 
 // A route that toggles a post like. Likes a post if it is not liked, unlikes it otherwise.
@@ -400,10 +465,31 @@ function checkAuthenticated(req, res, next) {
     res.redirect('/login')
 }
 
-// route to profile page
-app.get('/profile', (req, res) => {
-    res.render('pages/profile')
-});
+app.get('/profile', checkAuthenticated, async (req, res) => {
+    const user = await getUserById(req.user.user_id)
+    const posts = await getAllPostsByUserID(req.user.user_id)
+
+    res.render('pages/profile', {
+        username: user.username,
+        email: user.email,
+        upvotes_received: user.upvotes_received,
+        is_admin: user.is_admin? 'Yes' : 'No',
+        posts: posts,
+    });
+})
+
+app.get('/profile/:id', checkAuthenticated, async (req, res) => {
+    const user = await getUserById(req.params.id)
+    const posts = await getAllPostsByUserID(req.params.id)
+
+    res.render('pages/profile', {
+        username: user.username,
+        email: user.email,
+        upvotes_received: user.upvotes_received,
+        is_admin: user.is_admin? 'Yes' : 'No',
+        posts: posts,
+    });
+})
 
 // Middleware function to check if user is NOT authenticated
 function checkNotAuthenticated(req, res, next) {
@@ -433,9 +519,15 @@ async function getAllPosts() {
     return [rows, fields];
 }
 
+// Gets all the posts from a particular user. Returns a weird SQL object thingy.
+async function getAllPostsByUserID(user_id) {
+    let [rows, fields] = await pool.execute(`SELECT * FROM posts WHERE poster_id='${user_id}'`, [1, 1]);
+    return rows; 
+}
+
 // Tells our app to listen to a certain port
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    console.log(`Bonfire listening on port ${port}`)
 })
 
 // Connects to the database (service) and creates a database
@@ -504,6 +596,34 @@ app.listen(port, () => {
 //     connection.query(sql, function (err, result) {
 //       if (err) throw err;
 //       console.log("TABLE liked_posts created.");
+//     });
+//   })
+// }
+
+// Connects to the database and creates a tags table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function createTagsTable() {
+//     var sql = `CREATE TABLE tags (tag_id BIGINT NOT NULL AUTO_INCREMENT, tag_name VARCHAR(255), PRIMARY KEY (tag_id))`;
+//     connection.connect(function(err) {
+//       if (err) throw err;
+//       console.log("Connected at createTagsTable.");
+//       connection.query(sql, function (err, result) {
+//         if (err) throw err;
+//         console.log("TABLE tags created.");
+//       });
+//     })
+//   }
+
+// Connects to the database and creates a like_comment table
+// This function is commented out, because it CANNOT be used with mysql connection pools
+// function createPostTagsTable() {
+//   var sql = `CREATE TABLE post_tags (post_tag_id BIGINT NOT NULL AUTO_INCREMENT, post_id BIGINT, tag_id BIGINT, PRIMARY KEY (post_tag_id), FOREIGN KEY (post_id) REFERENCES posts(post_id), FOREIGN KEY (tag_id) REFERENCES tags(tag_id))`;
+//   connection.connect(function(err) {
+//     if (err) throw err;
+//     console.log("Connected at createPostTagsTable.");
+//     connection.query(sql, function (err, result) {
+//       if (err) throw err;
+//       console.log("TABLE post_tags created.");
 //     });
 //   })
 // }

@@ -3,28 +3,44 @@
 
 <head>
   <%- include('../partials/head'); %>
-    <style>
-      .img-thumbnail {
-        display: inline;
-      }
-    </style>
+  <style>
+    .img-thumbnail {
+      display: inline;
+    }
+    h1 {text-align: center;}
+    p {text-align: center;} 
+    div {text-align: center;}
+  </style>
 </head>
+
+<header>
+  <%- include('../partials/header'); %>
+</header>
 
 <body class="container">
 
-  <header>
-    <%- include('../partials/header'); %>
-  </header>
 
   <main>
-    <div class="jumbotron">
-      <h1 class="header-title">Our Mission</h1>
-      <hr>
-      <p>Our vision for Bonfire is to create a safe space for meaningful discourse, free of bias and censorship.</p>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Error consectetur esse distinctio nostrum fugit facere commodi voluptatibus omnis, officia animi odit illo pariatur, quas ex veritatis itaque magnam a optio.</p>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi tenetur nam omnis sint veritatis reiciendis voluptas, praesentium recusandae sit, nostrum soluta modi facere at dignissimos optio fugit? Minima, impedit facere.</p>
-
-      
+    <a href="/login" class="btn btn-outline-primary" role="button">Home</a>
+    <div>
+      <img src="/images/bonfire2.gif"width="250" height="250" class="d-inline-block align-text-top"> 
+    </div>
+    <div class="container p-2">
+      <h2 class="m2">Our Mission</h2>
+      <p class="m2">Our vision for Bonfire is to create a safe space for meaningful discourse, free of bias, and censorship.</p>
+      <h4 class="m2">How will we do that?</h4>
+      <p class="m2">The feature that differentiates us from other social media apps is incorporating a 250-character minimum per
+        post.
+      While social media giants usually have character <i>limits</i>, Bonfire decided to implement a minimum
+        character count.
+      This relieves the platform of:
+      <ul style="list-style:lower-latin;">
+        <li>Posts and comments that do not promote discussion. <i>(Example: "lol")</i></li>
+        <li>Bots and mass-generated accounts used to manipulate like counts.</li>
+      </ul>
+      <p class="m2">With this feature present, users can use the platform without having to worry about spam comments that may not
+        contribute to discussions.
+      </p>
     </div>
   </main>
 

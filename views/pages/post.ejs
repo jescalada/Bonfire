@@ -3,9 +3,6 @@
 
 <head>
   <%- include('../partials/head'); %>
-  <script>
-
-  </script>
 </head>
 
 <body class="container">
@@ -19,16 +16,20 @@
       <div class="container">
         <div class="row d-flex justify-content-center">
           <div class="col-md-12 col-lg-10 col-xl-8">
-            <div class="card">
+            <div class="card" style="border-radius: 0;">
               <div class="card-body">
                 <div class="d-flex flex-start align-items-center">
+                  <a href="/profile/<%= poster_id %>" class="h6 fw-bold text-primary mb-1"
+                    style="text-decoration:none">
                   <img class="rounded-circle shadow-1-strong me-3"
-                    src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(19).webp" alt="avatar" width="60"
+                    src="https://soccerpointeclaire.com/wp-content/uploads/2021/06/default-profile-pic-e1513291410505.jpg" alt="avatar" width="60"
                     height="60" />
+                    </a>
                   <div>
-                    <h6 class="fw-bold text-primary mb-1">
+                    <a href="/profile/<%= poster_id %>" class="h6 fw-bold text-primary mb-1"
+                      style="text-decoration:none">
                       <%= poster.username %>
-                    </h6>
+                    </a>
                     <p class="text-muted small mb-0">
                       <%= row.post_timestamp.toString().substring(0, 24) %>
                     </p>
@@ -40,9 +41,15 @@
                 <p class="h3 mt-3">
                   <%= row.post_title %>
                 </p>
-                <p class="mt-3 mb-4 pb-2">
+                <p class="mt-3">
                   <%= row.post_content %>
                 </p>
+
+                <div id="post-tags" class="mt-2 mb-2 p-1">
+                  <% tags.forEach(function(tag) { %>
+                  <span class="badge rounded-pill bg-primary"><%= tag.tag_name %></span>
+                  <% }); %>
+                </div>
 
                 <div class="small d-flex justify-content-start">
                   <a onclick="likePost('<%= row.post_id %>', '<%= user_id %>')"
@@ -50,7 +57,7 @@
                     <i class="far fa-thumbs-up me-2"></i>
                     <p class="mb-0 unliked" id="like-button">Like!</p>
                   </a>
-                  <a class="d-flex align-items-center me-3 post-action">
+                  <a class="d-flex align-items-center me-3 post-action" onclick="toggleCommentBox()">
                     <i class="far fa-thumbs-up me-2"></i>
                     <p class="mb-0">Comment</p>
                   </a>
@@ -61,18 +68,18 @@
                 </div>
               </div>
               <!-- Comment Box -->
-              <div class="card-footer py-3 border-0" style="background-color: #f8f9fa;">
+              <div class="card-footer py-3 border-0" style="background-color: #f8f9fa;" id="comment-box">
                 <form action="/comment/<%= row.post_id %>" method="post">
                   <div class="d-flex flex-start w-100">
                     <div class="form-outline w-100">
                       <textarea class="form-control" id="textAreaExample" name="commentContent" rows="4"
-                        style="background: #fff;"></textarea>
-                      <label class="form-label" for="commentContent">Message</label>
+                      minlength="150" style="background: #fff;"></textarea>
+                      <label class="form-label" for="commentContent"></label>
                     </div>
                   </div>
                   <div class="float-end mt-2 pt-1">
                     <button type="submit" class="btn btn-primary btn-sm">Post comment</button>
-                    <button type="button" class="btn btn-outline-primary btn-sm">Cancel</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleCommentBox()">Cancel</button>
                   </div>
                 </form>
               </div>
@@ -88,9 +95,11 @@
 
                     <div class="d-flex justify-content-between">
                       <div class="d-flex flex-row align-items-center">
-                        <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(4).webp" alt="avatar" width="25"
+                        <a href="/profile/<%= row.commenter_id %>">
+                          <img src="https://soccerpointeclaire.com/wp-content/uploads/2021/06/default-profile-pic-e1513291410505.jpg" alt="avatar" width="25"
                           height="25" />
-                        <p class="small mb-0 ms-2"><%= row.commenter_username %></p>
+                        </a>
+                        <a href="/profile/<%= row.commenter_id %>" class="small mb-0 ms-2" style="text-decoration:none"><%= row.commenter_username %></a>
                       </div>
                       <div class="d-flex flex-row align-items-center">
                         <a onclick="likeComment('<%= row.comment_id %>', '<%= user_id %>')"
@@ -99,7 +108,8 @@
                           <p class="mb-0 unliked" id="comment-like-button-<%= row.comment_id %>">Like!</p>
                         </a>
                         <i class="far fa-thumbs-up mx-2 fa-xs text-black" style="margin-top: -0.16rem;"></i>
-                        <p class="small text-muted mb-0"><span id="comment-likes-count-<%= row.comment_id %>"><%= row.upvotes_received %></span> Likes</p>
+                        <p class="small text-muted mb-0"><span
+                            id="comment-likes-count-<%= row.comment_id %>"><%= row.upvotes_received %></span> Likes</p>
                       </div>
                     </div>
                   </div>
@@ -146,7 +156,7 @@
             setLikes('post-likes-count', postUpvotes += 1)
           } else { // If the post was unliked, then update the DOM to give unlike feedback
             setButtonLiked('like-button', false)
-            setLikes('post-likes-count',  postUpvotes -= 1)
+            setLikes('post-likes-count', postUpvotes -= 1)
           }
         }));
     }
@@ -181,6 +191,15 @@
         }));
     }
 
+    function toggleCommentBox() {
+      var x = document.getElementById("comment-box");
+      if (x.style.display === "none") {
+        x.style.display = "inline";
+      } else {
+        x.style.display = "none";
+      }
+    }
+
     function setButtonLiked(buttonId, isLiked) {
       if (isLiked) {
         var likeButton = document.getElementById(buttonId);
@@ -208,9 +227,8 @@
 
     // For each of the user's liked comments in this post, set them to Liked
     '<% liked_comments.forEach(function(row) { %>'
-        setButtonLiked('comment-like-button-' + '<%= row.comment_id %>', true)
+    setButtonLiked('comment-like-button-' + '<%= row.comment_id %>', true)
     '<% }) %>'
-
   </script>
 </body>
 
