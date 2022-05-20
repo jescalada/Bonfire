@@ -1,6 +1,7 @@
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#postModal">Write Post</button>
+<button type="button" class="btn btn-primary mx-3" data-bs-toggle="modal" data-bs-target="#postModal"
+  style="margin-left: 1.2rem !important;">Write Post</button>
 
-<div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top: 30vh;">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -12,10 +13,12 @@
           <div class="mb-3">
             <label for="postTitle" class="col-form-label">Post Title</label>
             <input type="text" class="form-control" id="postTitle" name="postTitle">
+            <span id="title-error"></span>
           </div>
           <div class="mb-3">
             <label for="postContent" class="col-form-label">Content</label>
             <textarea class="form-control" id="postContent" name="postContent"></textarea>
+            <span id="content-error"></span>
           </div>
           <div class="mb-3">
             <script>
@@ -40,19 +43,31 @@
                   postContent: postContent,
                   postTags: postTags
                 }
-                fetch('/post', {
-                  method: 'POST',
-                  body: JSON.stringify(data),
-                  headers: {
-                    'Content-type': 'application/json'
-                  }
-                }).then(response => response.json().then((data) => {
-                  if (data.success) {
-                    window.location.href = `/post/${data.postId}`;
-                  } else {
-                    console.log("There was an error while posting!");
-                  }
-                }));
+                let titleError = document.getElementById("title-error")
+                let contentError = document.getElementById("content-error")
+                if (postTitle.length == 0) {
+                  titleError.textContent = "The post title cannot be empty! Please try again"
+                  titleError.style.color = "red"
+                } else if (postContent.length < 250) {
+                  contentError.textContent = "The post content has to be at least 250 characters"
+                  contentError.style.color = "red"
+                } else {
+                  titleError.textContent = ""
+                  contentError.textContent = ""
+                  fetch('/post', {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: {
+                      'Content-type': 'application/json'
+                    }
+                  }).then(response => response.json().then((data) => {
+                    if (data.success) {
+                      window.location.href = `/post/${data.postId}`;
+                    } else {
+                      console.log("There was an error while posting!");
+                    }
+                  }));
+                }
               }
             </script>
             <label for="postTags" class="col-form-label">Tags</label>

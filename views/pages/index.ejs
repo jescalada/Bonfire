@@ -3,59 +3,89 @@
 
 <head>
   <%- include('../partials/head'); %>
-    <style>
-      .img-thumbnail {
-        display: inline;
-      }
-    </style>
+  <style>
+    .img-thumbnail {
+      display: inline;
+    }
+  </style>
 </head>
 
-<body class="container">
+<body class="container flex-row">
 
   <header>
     <%- include('../partials/header'); %>
   </header>
 
   <main>
-    <div class="jumbotron">
-      <h1 class="header-title">Feed</h1>
-      <p class="header-welcome">Welcome back, <%= user.username %>. These are some of the hot topics of the day.</p>
-
-      <form action="/logout?_method=DELETE" method="POST">
-        <button type="submit" class="btn btn-primary">Log Out</button>
-      </form>
-
-      <% if (user.is_admin) { %>
-        <p class="nav-item">
-          <a class="nav-link" href="/admin">Admin Dashboard</a>
-        </p>
-      <% } %>
+    <div class="container">
+      <h1 class="header-title my-4">Feed</h1>
+      <p class="header-welcome">Welcome back, <%= user.username %>.</p>
+      <p class="header-welcome mb-4">These are some of the <span id="trigger" onclick="easterEgg()">HOT</span> topics of the day.</p>
+      
+      <div class="mb-3">
+        <form action="/logout?_method=DELETE" method="POST" class="col mx-2">
+          <button type="submit" class="btn btn-primary">Log Out</button>
+        </form>
+  
+        <% if (user.is_admin) { %>
+          <a class="btn btn-primary col mx-2 mt-3" href="/admin">Admin Dashboard</a>
+        <% } %>
+      </div>
+      
     </div>
 
     <%- include('../partials/post_modal'); %>
-    
+
     <!-- discussion cards -->
-    <div class="container">
+    <div class="container my-2">
       <% posts.forEach(function(row) { %>
-        <div class="row">
-          <div class="card col m-3">
-            <div class="card-body">
-              <div class="row flex-row">
-                <h5 class="card-title col-md-8 post-title-text"><%= row.post_title %></h5>
-                <p class="col-md-2 post-username-text">u/<%= row.poster_username %></p>
-                <p class="col-md-2 post-upvotes-text"><%= row.upvotes_received %> Likes</p>
+      <div class="row">
+        <div class="card col mx-2 mt-2">
+          <div class="card-body">
+            <div class="row flex-row">
+              <h5 class="card-title col-md-8 post-title-text"><%= row.post_title %></h5>
+              <p class="col-md-2 post-username-text">u/<%= row.poster_username %></p>
+              <p class="col-md-2 post-upvotes-text"><%= row.upvotes_received %> Likes</p>
+            </div>
+            <p class="card-text"><%= row.post_content %></p>
+            <div class="row">
+              <div class="col-8 post-interaction-container">
+                <a href="/post/<%= row.post_id %>" class="btn btn-primary">Join discussion</a>
+
+                <% if (user.is_admin) { %>
+                <script>
+                  function deletePost(postId) {
+                    let data = {
+                      postId: postId
+                    }
+                    fetch('/post', {
+                      method: 'DELETE',
+                      body: JSON.stringify(data),
+                      headers: {
+                        'Content-type': 'application/json'
+                      }
+                    }).then(response => response.json().then((data) => {
+                      if (data.success) {
+                        console.log("Successfully deleted the post!");
+                      } else {
+                        console.log("There was an error while deleting!");
+                      }
+                    }));
+
+                  }
+                </script>
+                <button class="btn btn-danger" onclick="deletePost('<%= row.post_id %>')">Delete post</a>
+                
+                <% } %>
               </div>
-              <p class="card-text"><%= row.post_content %></p>
-              <div class="row">
-                <div class="col-8 post-interaction-container">
-                  <a href="/post/<%= row.post_id %>" class="btn btn-primary">Join discussion</a>
-                </div>
-                <p class="col-4 post-timestamp-text"><%= row.post_timestamp.toString().substring(0, 24) %></p>
-              </div>
+
+
+              <p class="col-4 post-timestamp-text"><%= row.post_timestamp.toString().substring(4, 24) %></p>
             </div>
           </div>
         </div>
-      <% }); %>  
+      </div>
+      <% }); %>
     </div>
   </main>
 
@@ -63,6 +93,32 @@
     <%- include('../partials/footer'); %>
   </footer>
 
+  <script>
+    let trigger = document.getElementById("trigger");
+    let body = document.getElementsByTagName("body")[0];
+
+    trigger.style.color = "red";
+
+    function easterEgg() {
+      console.log("triggered");
+      startAnimation();
+      setTimeout(endAnimation, 10000);
+    }
+
+    function startAnimation() {
+      trigger.style.fontSize = "200%";
+      trigger.style.fontWeight = "bold";
+      body.style.backgroundImage = "url('/images/bonfire2.gif')";
+      body.style.backgroundSize = "contain";
+      body.style.backgroundRepeat = "no-repeat";
+    }
+
+    function endAnimation() {
+      trigger.style.fontSize = "100%";
+      trigger.style.fontWeight = "normal";
+      body.style.backgroundImage = ""
+    }
+  </script>
 </body>
 
 </html>
