@@ -237,6 +237,12 @@ app.get('/contact', (req, res) => {
   res.render('pages/contact');
 })
 
+// GET contact2 page
+app.get('/contact2', (req, res) => {
+  res.render('pages/contact2');
+})
+
+
 // POST login page
 app.post('/register', checkNotAuthenticated, async(req, res) => {
     try {
