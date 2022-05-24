@@ -213,40 +213,6 @@ app.post('/comment/:postid', checkAuthenticated, async(req, res) => {
     res.redirect(`/post/${req.params.postid}`) // Redirect to the same page on success
 })
 
-// Gets all the comments under a postID
-// Returns rows representing comments or null
-async function getCommentsByPostId(id) {
-    var sql = `SELECT * FROM comments WHERE post_id='${id}'`;
-    let [rows, fields] = await pool.execute(sql, [1, 1]);
-    // let row = rows[0];
-    if (rows) {
-        return rows
-    } else {
-        return null
-    }
-}
-
-// Gets all the comments under a postID
-// Returns rows representing comments or null
-async function getLikedCommentsByPostId(id, userId) {
-    var sql = `SELECT * FROM comments LEFT JOIN liked_comments ON comments.comment_id=liked_comments.comment_id WHERE post_id='${id}' AND liker_id='${userId}'`;
-    let [rows, fields] = await pool.execute(sql, [1, 1]);
-    if (rows) {
-        return rows
-    } else {
-        return null
-    }
-}
-
-// Connects to the database and adds a new comment entry
-function addNewComment(post_id, commenter_id, commentContent, commenterUsername) {
-    // Adds escape characters to ' in order to make SQL queries work properly with apostrophes
-    commentContent = commentContent.replaceAll("'", "''")
-    var sql = `INSERT INTO comments (commenter_id, post_id, upvotes_received, comment_content, commenter_username) values
-  ('${commenter_id}','${post_id}', '0', '${commentContent}', '${commenterUsername}');`;
-    pool.query(sql);
-}
-
 // POST /post route
 // Attempts to create a new post with the given body parameters.
 // Returns a json containing the postId if successful
