@@ -36,7 +36,6 @@
                 let tagName = inputBox.value;
                 inputBox.value = "";
                 postTags.push(tagName);
-                console.log(postTags);
                 let tagContainer = document.getElementById("tagContainer");
                 let tagHTML = `<span class="badge rounded-pill bg-primary">${tagName}</span>`;
                 tagContainer.innerHTML += tagHTML;
