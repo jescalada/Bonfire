@@ -75,6 +75,11 @@ router.get('/contact', (req, res) => {
   res.render('pages/contact');
 })
 
+// GET /contact2 page
+router.get('/contact2', (req, res) => {
+  res.render('pages/contact2');
+})
+
 // POST login route
 // Attempts to create a user using the included email, username and password data
 // Redirects to login on success, or returns to registration page on failure
