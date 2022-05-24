@@ -17,12 +17,15 @@
   </header>
 
   <main>
+    <!-- Feed Container -->
     <div class="container">
       <h1 class="header-title my-4">Feed</h1>
       <p class="header-welcome">Welcome back, <%= user.username %>.</p>
       <p class="header-welcome mb-4">These are some of the <span id="trigger" onclick="easterEgg()">HOT</span> topics of the day.</p>
       
       <div class="mb-3">
+
+        <!-- Log out button -->
         <form action="/logout?_method=DELETE" method="POST" class="col mx-2">
           <button type="submit" class="btn btn-primary">Log Out</button>
         </form>
@@ -36,13 +39,18 @@
 
     <%- include('../partials/post_modal'); %>
 
-    <!-- discussion cards -->
+    <!-- Discussion Cards -->
     <div class="container my-2">
+      <!-- For each post, load it dynamically along with the data -->
       <% posts.forEach(function(row) { %>
       <div class="row">
         <div class="card col mx-2 mt-2">
+
+          <!-- Card Body -->
           <div class="card-body">
             <div class="row flex-row">
+
+              <!-- Post info dynamic loading -->
               <h5 class="card-title col-md-8 post-title-text"><%= row.post_title %></h5>
               <p class="col-md-2 post-username-text">u/<%= row.poster_username %></p>
               <p class="col-md-2 post-upvotes-text"><%= row.upvotes_received %> Likes</p>
@@ -52,6 +60,7 @@
               <div class="col-8 post-interaction-container">
                 <a href="/post/<%= row.post_id %>" class="btn btn-primary">Join discussion</a>
 
+                <!-- If user is admin, load extra funtcions buttons to delete posts -->
                 <% if (user.is_admin) { %>
                 <script>
                   function deletePost(postId) {
@@ -79,7 +88,7 @@
                 <% } %>
               </div>
 
-
+              <!-- Keeps generating posts dynamically -->
               <p class="col-4 post-timestamp-text"><%= row.post_timestamp.toString().substring(4, 24) %></p>
             </div>
           </div>
@@ -93,6 +102,7 @@
     <%- include('../partials/footer'); %>
   </footer>
 
+  <!-- Scripts for easter egg -->
   <script>
     let trigger = document.getElementById("trigger");
     let body = document.getElementsByTagName("body")[0];

@@ -13,10 +13,13 @@
   <div class="jumbotron">
     <h1>Admin Dashboard</h1>
     <p>Welcome, <%= username %></p>
-
+    
+    <!-- Logout button -->
     <form action="/logout?_method=DELETE" method="POST">
       <button type="submit" class="btn btn-primary">Log Out</button>
     </form>
+
+    <!-- User list view -->
     <ul>
         <% users.forEach(function(row) { %>
           <li>

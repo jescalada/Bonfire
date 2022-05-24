@@ -11,13 +11,18 @@
     <%- include('../partials/header'); %>
   </header>
   <main>
-    <!-- The post you are viewing -->
+
+    <!-- Post info container -->
     <section style="background-color: #eee;">
       <div class="container">
         <div class="row d-flex justify-content-center">
           <div class="col-md-12 col-lg-10 col-xl-8">
             <div class="card" style="border-radius: 0;">
+              
+              <!-- Post header -->
               <div class="card-body">
+
+                <!-- Post contents -->
                 <div class="d-flex flex-start align-items-center">
                   <a href="/profile/<%= poster_id %>" class="h6 fw-bold text-primary mb-1"
                     style="text-decoration:none">
@@ -45,28 +50,35 @@
                   <%= row.post_content %>
                 </p>
 
+                <!-- Post Tags -->
                 <div id="post-tags" class="mt-2 mb-2 p-1">
+                  <!-- Dynamically logs post tags -->
                   <% tags.forEach(function(tag) { %>
                   <span class="badge rounded-pill bg-primary"><%= tag.tag_name %></span>
                   <% }); %>
                 </div>
 
+                <!-- Post interaction buttons -->
                 <div class="small d-flex justify-content-start">
+                  <!-- Like button -->
                   <a onclick="likePost('<%= row.post_id %>', '<%= user_id %>')"
                     class="d-flex align-items-center me-3 post-action">
                     <i class="far fa-thumbs-up me-2"></i>
                     <p class="mb-0 unliked" id="like-button">Like!</p>
                   </a>
+                  <!-- Comment button -->
                   <a class="d-flex align-items-center me-3 post-action" onclick="toggleCommentBox()">
                     <i class="far fa-thumbs-up me-2"></i>
                     <p class="mb-0">Comment</p>
                   </a>
+                  <!-- Share button (inactive) -->
                   <a class="d-flex align-items-center me-3 post-action">
                     <i class="fas fa-share me-2"></i>
                     <p class="mb-0">Share</p>
                   </a>
                 </div>
               </div>
+
               <!-- Comment Box -->
               <div class="card-footer py-3 border-0" style="background-color: #f8f9fa;" id="comment-box">
                 <form action="/comment/<%= row.post_id %>" method="post">
@@ -83,16 +95,20 @@
                   </div>
                 </form>
               </div>
+
               <!-- Comment Section  -->
               <div class="container">
                 <p class="h3 mt-3">
                   Comments
                 </p>
+
+                <!-- Comments are dynamically loaded -->
                 <% comments.forEach(function(row) { %>
                 <div class="card mb-4">
+
+                  <!-- Comment content -->
                   <div class="card-body">
                     <p><%= row.comment_content %></p>
-
                     <div class="d-flex justify-content-between">
                       <div class="d-flex flex-row align-items-center">
                         <a href="/profile/<%= row.commenter_id %>">
@@ -101,6 +117,8 @@
                         </a>
                         <a href="/profile/<%= row.commenter_id %>" class="small mb-0 ms-2" style="text-decoration:none"><%= row.commenter_username %></a>
                       </div>
+
+                      <!-- Comment Like button -->
                       <div class="d-flex flex-row align-items-center">
                         <a onclick="likeComment('<%= row.comment_id %>', '<%= user_id %>')"
                           class="d-flex align-items-center me-3 post-action">

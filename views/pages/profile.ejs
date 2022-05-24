@@ -15,10 +15,13 @@
 
   <main>
 
+  <!-- Profile Container -->
     <div class="container">
       <div class="row justify-content-center mb-2">
         <div class="col" style="max-width: 20rem;">
           <div class="card pt-4 my-3">
+
+            <!-- Profile Info -->
             <div class="d-flex flex-column align-items-center">
               <img src="https://soccerpointeclaire.com/wp-content/uploads/2021/06/default-profile-pic-e1513291410505.jpg" height="100" width="100" style="border-radius: 10rem;"/>
               <p class="text-muted mt-3" style="margin-bottom: 0;"><%= username %></p>
@@ -28,6 +31,8 @@
             </div>
           </div>
         </div>
+
+        <!-- Profile Latest Posts -->
         <h2 class="mx-4">Posts</h2>
         <!-- <div class="container mt-4 mb-4 p-3 d-flex col-3">
                 <div class="card p-4">                                                                                                      
@@ -43,11 +48,15 @@
                 </div>
             </div> -->
         <div class="" style="padding: 0;">
+
+          <!-- Posts are loaded dynamically -->
           <div class="container">
             <% posts.forEach(function(row) { %>
             <div class="row">
               <div class="card col mt-2 mx-2">
                 <div class="card-body">
+                  
+                  <!-- Post content and details -->
                   <div class="row flex-row">
                     <h5 class="card-title col-md-8 post-title-text"><%= row.post_title %></h5>
                     <p class="col-md-2 post-username-text">u/<%= row.poster_username %></p>

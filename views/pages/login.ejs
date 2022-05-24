@@ -13,10 +13,12 @@
         <%- include('../partials/header'); %>
     </header>
     <main>
+        <!-- Login main container -->
         <div class="container" id="main-bg">
 
             <div class="row">
 
+                <!-- Info container -->
                 <div class="col">
                     <div class="jumbotron jumbotron-fluid mt-3 login-container" style="min-width: 18rem; margin-bottom: 0;">
                         <div class="container">
@@ -26,12 +28,15 @@
                     </div>
                 </div>
 
+                <!-- Login form container -->
                 <div class="col">
                     <div class="jumbotron pt-3 mt-3 login-container" style="min-width: 18rem;">
                         <!-- messages.error is set by express-flash -->
                         <% if (messages.error) { %>
                         <%= messages.error %>
                         <% } %>
+                        
+                        <!-- Login form -->
                         <form action="/login" method="post">
                             <div>
                                 <div class="form-floating my-3">

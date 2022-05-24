@@ -1,6 +1,10 @@
+<!-- Post modal Component -->
+
+<!-- Post modal Button -->
 <button type="button" class="btn btn-primary mx-3" data-bs-toggle="modal" data-bs-target="#postModal"
   style="margin-left: 1.2rem !important;">Write Post</button>
 
+<!-- Modal (popup) -->
 <div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top: 10vh;">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -8,6 +12,7 @@
         <h5 class="modal-title" id="exampleModalLabel">New Post</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+      <!-- Modal Body -->
       <div class="modal-body">
         <form action="/post" method="post">
           <div class="mb-3">
@@ -21,6 +26,8 @@
             <span id="content-error"></span>
           </div>
           <div class="mb-3">
+
+            <!-- Modal-related scripts -->
             <script>
               let postTags = [];
 
@@ -70,13 +77,17 @@
                 }
               }
             </script>
-            <label for="postTags" class="col-form-label">Tags</label>
+
+            <!-- Modal Tags -->    
+            <label for="postTags" class="col-form-label">Tags</label>          
             <div id="tagContainer">
               <input type="text" class="form-control" id="tagInput"
                 style="max-width: 40%; display: inline; vertical-align: middle;">
               <div onclick="addTag()" id="addTag" class="btn btn-primary"><i class="zmdi zmdi-edit"></i></div>
             </div>
           </div>
+          
+          <!-- Modal Footer -->
           <div class="modal-footer">
             <button type="button" onclick="submitPost()" class="btn btn-primary">Post</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
