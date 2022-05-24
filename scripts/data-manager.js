@@ -192,6 +192,69 @@ async function getLikedCommentsByPostId(id, userId) {
     }
 }
 
+// Toggles the like status of a user/comment combination
+// Returns true if the comment was liked, false if the comment was unliked 
+async function toggleLikeComment(likerId, commentId) {
+    let isLiked = await checkLikedComment(likerId, commentId)
+    if (!isLiked) {
+        var sql = `INSERT INTO liked_comments (comment_id, liker_id) values
+      ('${commentId}', '${likerId}');`
+        pool.query(sql)
+
+        var anotherQuery = `UPDATE comments SET upvotes_received = upvotes_received + 1 WHERE comment_id = ${commentId}`
+        pool.query(anotherQuery)
+        return true
+    } else {
+        var sql = `DELETE FROM liked_comments WHERE comment_id='${commentId}' AND liker_id='${likerId}';`;
+        pool.query(sql);
+
+        var anotherQuery = `UPDATE comments SET upvotes_received = upvotes_received - 1 WHERE comment_id = ${commentId}`
+        pool.query(anotherQuery)
+        return false
+    }
+}
+
+// Queries the database to check if a comment is liked or not, returns true if the comment is liked
+// Returns true if the comment is liked
+async function checkLikedComment(userId, commentId) {
+    var sql = `SELECT * FROM liked_comments WHERE comment_id='${commentId}' AND liker_id='${userId}'`;
+    let [rows, fields] = await pool.execute(sql, [1, 1]);
+    let row = rows[0];
+    return row != null
+}
+
+// Toggles the like status of a user/post combination
+// Returns true if the post was liked, false if the post was unliked 
+async function toggleLikePost(likerId, postId) {
+    let isLiked = await checkLikedPost(likerId, postId)
+    if (!isLiked) {
+        var sql = `INSERT INTO liked_posts (post_id, liker_id) values
+      ('${postId}', '${likerId}');`
+        pool.query(sql)
+
+        var anotherQuery = `UPDATE posts SET upvotes_received = upvotes_received + 1 WHERE post_id = ${postId}`
+        pool.query(anotherQuery)
+        return true
+    } else {
+        var sql = `DELETE FROM liked_posts WHERE post_id='${postId}' AND liker_id='${likerId}';`;
+        pool.query(sql);
+
+        var anotherQuery = `UPDATE posts SET upvotes_received = upvotes_received - 1 WHERE post_id = ${postId}`
+        pool.query(anotherQuery)
+        return false
+    }
+}
+
+// Queries the database to check if a post is liked or not, returns true if the post is liked
+// Returns true if a post is liked
+async function checkLikedPost(userId, postId) {
+    var sql = `SELECT * FROM liked_posts WHERE post_id='${postId}' AND liker_id='${userId}'`;
+    let [rows, fields] = await pool.execute(sql, [1, 1]);
+    let row = rows[0];
+    return row != null
+}
+
+
 module.exports = {
     // User functions
     addNewUser,
@@ -215,5 +278,9 @@ module.exports = {
     getCommentsByPostId,
     // Comment Like functions
     getLikedCommentsByPostId,
-    
+    toggleLikeComment,
+    checkLikedComment,
+    // Post like functions
+    toggleLikePost,
+    checkLikedPost,
 }

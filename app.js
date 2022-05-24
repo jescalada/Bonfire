@@ -192,7 +192,7 @@ app.get('/post/:postid', checkAuthenticated, async(req, res) => {
     let post = await db.getPostById(req.params.postid)
     let poster = await db.getUserById(post.poster_id)
     let rows = await db.getCommentsByPostId(req.params.postid)
-    let isLiked = await checkLikedPost(req.user.user_id, req.params.postid)
+    let isLiked = await db.checkLikedPost(req.user.user_id, req.params.postid)
     let likedComments = await db.getLikedCommentsByPostId(req.params.postid, req.user.user_id)
     let tags = await db.getPostTags(req.params.postid)
     res.render('pages/post', {
@@ -236,7 +236,7 @@ app.post('/post', checkAuthenticated, async(req, res) => {
 // Returns a JSON response containing the status of the liked post
 app.post('/likepost', checkAuthenticated, async(req, res) => {
     try {
-        await toggleLikePost(req.user.user_id, req.body.post_id).then((liked) => {
+        await db.toggleLikePost(req.user.user_id, req.body.post_id).then((liked) => {
             // ON SUCCESS, it sends a JSON with the current liked status of the post/user pair
             res.json({
                 liked: liked,
@@ -251,43 +251,12 @@ app.post('/likepost', checkAuthenticated, async(req, res) => {
     }
 })
 
-// Toggles the like status of a user/post combination
-// Returns true if the post was liked, false if the post was unliked 
-async function toggleLikePost(likerId, postId) {
-    let isLiked = await checkLikedPost(likerId, postId)
-    if (!isLiked) {
-        var sql = `INSERT INTO liked_posts (post_id, liker_id) values
-      ('${postId}', '${likerId}');`
-        pool.query(sql)
-
-        var anotherQuery = `UPDATE posts SET upvotes_received = upvotes_received + 1 WHERE post_id = ${postId}`
-        pool.query(anotherQuery)
-        return true
-    } else {
-        var sql = `DELETE FROM liked_posts WHERE post_id='${postId}' AND liker_id='${likerId}';`;
-        pool.query(sql);
-
-        var anotherQuery = `UPDATE posts SET upvotes_received = upvotes_received - 1 WHERE post_id = ${postId}`
-        pool.query(anotherQuery)
-        return false
-    }
-}
-
-// Queries the database to check if a post is liked or not, returns true if the post is liked
-// Returns true if a post is liked
-async function checkLikedPost(userId, postId) {
-    var sql = `SELECT * FROM liked_posts WHERE post_id='${postId}' AND liker_id='${userId}'`;
-    let [rows, fields] = await pool.execute(sql, [1, 1]);
-    let row = rows[0];
-    return row != null
-}
-
 // POST /likecomment route
 // A route that toggles a comment like. Likes a comment if it is not liked, unlikes it otherwise.
 // Returns a JSON response containing the status of the liked comment
 app.post('/likecomment', checkAuthenticated, async(req, res) => {
     try {
-        await toggleLikeComment(req.body.liker_id, req.body.comment_id).then((liked) => {
+        await db.toggleLikeComment(req.body.liker_id, req.body.comment_id).then((liked) => {
             // ON SUCCESS, it sends a JSON with the current liked status of the comment/user pair
             res.json({
                 liked: liked,
@@ -301,47 +270,6 @@ app.post('/likecomment', checkAuthenticated, async(req, res) => {
         })
     }
 })
-
-// Toggles the like status of a user/comment combination
-// Returns true if the comment was liked, false if the comment was unliked 
-async function toggleLikeComment(likerId, commentId) {
-    let isLiked = await checkLikedComment(likerId, commentId)
-    if (!isLiked) {
-        var sql = `INSERT INTO liked_comments (comment_id, liker_id) values
-      ('${commentId}', '${likerId}');`
-        pool.query(sql)
-
-        var anotherQuery = `UPDATE comments SET upvotes_received = upvotes_received + 1 WHERE comment_id = ${commentId}`
-        pool.query(anotherQuery)
-        return true
-    } else {
-        var sql = `DELETE FROM liked_comments WHERE comment_id='${commentId}' AND liker_id='${likerId}';`;
-        pool.query(sql);
-
-        var anotherQuery = `UPDATE comments SET upvotes_received = upvotes_received - 1 WHERE comment_id = ${commentId}`
-        pool.query(anotherQuery)
-        return false
-    }
-}
-
-// Queries the database to check if a comment is liked or not, returns true if the comment is liked
-// Returns true if the comment is liked
-async function checkLikedComment(userId, commentId) {
-    var sql = `SELECT * FROM liked_comments WHERE comment_id='${commentId}' AND liker_id='${userId}'`;
-    let [rows, fields] = await pool.execute(sql, [1, 1]);
-    let row = rows[0];
-    return row != null
-}
-
-// Middleware function to check if user is authenticated
-// Continues the execution of the functions if the user is authenticated, otherwise redirects to login
-function checkAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next() //everything works, just execute the next function
-    }
-    res.redirect('/login')
-}
-
 
 // GET /profile route
 // Gets the current user's info and renders it to the client
@@ -387,4 +315,13 @@ function checkIfAdminAndAuthenticated(req, res, next) {
         return next() // If authenticated, redirect them to dashboard
     }
     return res.redirect('/') // if not authenticated, continue execution
+}
+
+// Middleware function to check if user is authenticated
+// Continues the execution of the functions if the user is authenticated, otherwise redirects to login
+function checkAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next() //everything works, just execute the next function
+    }
+    res.redirect('/login')
 }
