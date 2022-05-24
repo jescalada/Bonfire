@@ -13,21 +13,21 @@
         <%- include('../partials/header'); %>
     </header>
     <main>
-        <div class="container">
+        <div class="container" id="main-bg">
 
             <div class="row">
 
                 <div class="col">
-                    <div class="jumbotron jumbotron-fluid mt-3" style="min-width: 18rem; margin-bottom: 0;">
+                    <div class="jumbotron jumbotron-fluid mt-3 login-container" style="min-width: 18rem; margin-bottom: 0;">
                         <div class="container">
-                            <h1 class="my-2 mx-4">Bonfire</h1>
-                            <p class="lead mx-4 mt-4">A space to facilitate meaningful discussion.</p>
+                            <h1 class="my-2 mx-4" style="color: white;">Bonfire</h1>
+                            <p class="lead mx-4 mt-4" style="color: white;">A space to facilitate meaningful discussion.</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="col">
-                    <div class="jumbotron pt-3 mt-3" style="min-width: 18rem;">
+                    <div class="jumbotron pt-3 mt-3 login-container" style="min-width: 18rem;">
                         <!-- messages.error is set by express-flash -->
                         <% if (messages.error) { %>
                         <%= messages.error %>

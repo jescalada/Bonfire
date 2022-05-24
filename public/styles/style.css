@@ -121,3 +121,15 @@ h1, h2, h5 {
 p {
     font-family: 'Roboto', Arial, Helvetica, sans-serif;
 }
+
+#main-bg {
+    background: url("../images/bonfirewall.jpg") no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.login-container {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+}
