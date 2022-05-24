@@ -31,14 +31,16 @@ const initializePassport = require('./scripts/passport-config')
 // Allows us to parse the body of incoming POST requests
 const bodyParser = require('body-parser')
 
-// Obtain connection info from database.js
-const pool = require('./scripts/database')
+// Initialize the functions for managing data in our database
+// All our database operations are in data-manager.js
+// Database configuration files are in database.js
+const db = require('./scripts/data-manager')
 
 // Initializes the passport object
 initializePassport(
     passport, // Passport object
-    getUserByEmail, // A function that gets the user by email (unique identifier for user)
-    getUserById // A function that gets the user by id (HIDDEN unique identifier)
+    db.getUserByEmail, // A function that gets the user by email (unique identifier for user)
+    db.getUserById // A function that gets the user by id (HIDDEN unique identifier)
 )
 
 // Initializes an express app at the PORT specified in the .env, or otherwise port 3000
@@ -74,12 +76,10 @@ app.use(methodOverride('_method'))
 // Tells our app to keep in mind the folder called "public", where we have various assets
 app.use(express.static(__dirname + '/public'));
 
-// Connects to the database and adds a new user entry
-function addNewUser(username, email, encrypted_password, isAdmin) {
-    var sql = `INSERT INTO users (username, email, upvotes_received, upvotes_given, encrypted_password, is_admin) values
-  ('${username}', '${email}','0', '0', '${encrypted_password}', ${isAdmin});`
-    pool.query(sql)
-}
+// Tells our app to listen to a certain port
+app.listen(port, () => {
+    console.log(`Bonfire listening on port ${port}`)
+})
 
 // Gets a tag by name, returns an object representing a row in the database
 async function getTag(tagName) {
@@ -132,54 +132,6 @@ async function getPostTags(postId) {
     let sql = `SELECT * from post_tags LEFT JOIN tags ON tags.tag_id=post_tags.tag_id WHERE post_tags.post_id='${postId}'`
     let [rows, fields] = await pool.execute(sql, [1, 1])
     return rows
-}
-
-// Checks if an email is in the database
-// Returns an object representing a user, or null
-async function getUserByEmail(email) {
-    var sql = `SELECT * FROM users WHERE email='${email}'`
-    let [rows, fields] = await pool.execute(sql, [1, 1])
-    let row = rows[0]
-    if (row) {
-        return {
-            user_id: row.user_id,
-            username: row.username,
-            email: row.email,
-            upvotes_received: row.upvotes_received,
-            upvotes_given: row.upvotes_given,
-            encrypted_password: row.encrypted_password,
-            is_admin: row.is_admin,
-        }
-    } else {
-        return null
-    }
-}
-
-// Checks if an id is in the database
-// Returns an object representing a user or null
-async function getUserById(id) {
-    var sql = `SELECT * FROM users WHERE user_id='${id}'`;
-    let [rows, fields] = await pool.execute(sql, [1, 1]);
-    let row = rows[0]
-    if (row) {
-        return {
-            user_id: row.user_id,
-            username: row.username,
-            email: row.email,
-            upvotes_received: row.upvotes_received,
-            upvotes_given: row.upvotes_given,
-            encrypted_password: row.encrypted_password,
-            is_admin: row.is_admin,
-        }
-    } else {
-        return null
-    }
-}
-
-// Deletes the user with then given id from the database
-async function deleteUserById(id) {
-    var sql = `DELETE FROM users WHERE user_id='${id}'`;
-    await pool.execute(sql, [1, 1]);
 }
 
 // Deletes the post with then given id from the database
@@ -272,7 +224,7 @@ app.post('/register', checkNotAuthenticated, async(req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10)
         let isAdmin = req.body.email.split("@")[1].includes("admin")
-        addNewUser(req.body.username, req.body.email, hashedPassword, isAdmin)
+        db.addNewUser(req.body.username, req.body.email, hashedPassword, isAdmin)
         res.redirect('/login') // Redirect to login page on success
     } catch (err) {
         console.log(err)
@@ -319,7 +271,7 @@ app.delete('/post', checkAuthenticated, async(req, res) => {
 // Renders the single post page with "GET" method 
 app.get('/post/:postid', checkAuthenticated, async(req, res) => {
     let post = await getPostById(req.params.postid)
-    let poster = await getUserById(post.poster_id)
+    let poster = await db.getUserById(post.poster_id)
     let rows = await getCommentsByPostId(req.params.postid)
     let isLiked = await checkLikedPost(req.user.user_id, req.params.postid)
     let likedComments = await getLikedCommentsByPostId(req.params.postid, req.user.user_id)
@@ -509,7 +461,7 @@ function checkAuthenticated(req, res, next) {
 // GET /profile route
 // Gets the current user's info and renders it to the client
 app.get('/profile', checkAuthenticated, async (req, res) => {
-    const user = await getUserById(req.user.user_id)
+    const user = await db.getUserById(req.user.user_id)
     const posts = await getAllPostsByUserID(req.user.user_id)
 
     res.render('pages/profile', {
@@ -524,7 +476,7 @@ app.get('/profile', checkAuthenticated, async (req, res) => {
 // GET /profile route
 // Gets a user's info by userId and renders it to the client
 app.get('/profile/:id', checkAuthenticated, async (req, res) => {
-    const user = await getUserById(req.params.id)
+    const user = await db.getUserById(req.params.id)
     const posts = await getAllPostsByUserID(req.params.id)
 
     res.render('pages/profile', {
@@ -572,8 +524,3 @@ async function getAllPostsByUserID(user_id) {
     let [rows, fields] = await pool.execute(`SELECT * FROM posts WHERE poster_id='${user_id}'`, [1, 1]);
     return rows; 
 }
-
-// Tells our app to listen to a certain port
-app.listen(port, () => {
-    console.log(`Bonfire listening on port ${port}`)
-})
