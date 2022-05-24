@@ -81,71 +81,10 @@ app.listen(port, () => {
     console.log(`Bonfire listening on port ${port}`)
 })
 
-// Gets a tag by name, returns an object representing a row in the database
-async function getTag(tagName) {
-    let sql = `SELECT * FROM tags WHERE tag_name='${tagName}';`
-    let [rows, fields] = await pool.execute(sql, [1, 1])
-    return rows[0]
-}
-
-// Adds a new tag to the database, returns a Promise that resolves to an SQL query object
-async function addNewTag(tagName) {
-    let sql = `INSERT INTO tags (tag_name) values ('${tagName}');`
-    return await pool.query(sql)
-}
-
-// Connects to the database and adds a new post entry, returns the post id
-async function addNewPost(posterId, postTitle, postContent, posterUsername, postTags) {
-    // Adds escape characters to ' in order to make SQL queries work properly with apostrophes
-    postTitle = postTitle.replaceAll("'", "''")
-    postContent = postContent.replaceAll("'", "''")
-    
-    var sql = `INSERT INTO posts (poster_id, upvotes_received, post_title, post_content, poster_username) values
-  ('${posterId}', '0','${postTitle}', '${postContent}', '${posterUsername}');`;
-    let post = await pool.query(sql)
-    let postId = post[0].insertId
-    // For each tag in the post, check if the tag exists or not and adds the post_tag rows to DB
-    postTags.forEach(async (tagString) => {
-        tagString = tagString.replaceAll("'", "''")
-        let tag = await getTag(tagString)
-        var tagId;
-        if (!tag) {
-            tag = await addNewTag(tagString)
-            tagId = tag[0].insertId
-        } else {
-            tagId = tag.tag_id
-        }
-        addTagToPost(tagId, postId)
-    });
-    return postId
-}
-
-// Adds a tag and post combination to the post_tags table in the database
-async function addTagToPost(tagId, postId) {
-    let sql = `INSERT INTO post_tags (tag_id, post_id) values ('${tagId}', '${postId}')`
-    pool.query(sql)
-}
-
-// Gets all the tags for a certain post, searched by postId
-// Returns all the rows that match
-async function getPostTags(postId) {
-    let sql = `SELECT * from post_tags LEFT JOIN tags ON tags.tag_id=post_tags.tag_id WHERE post_tags.post_id='${postId}'`
-    let [rows, fields] = await pool.execute(sql, [1, 1])
-    return rows
-}
-
-// Deletes the post with then given id from the database
-async function deletePostById(id) {
-    var unsetCheck = `SET FOREIGN_KEY_CHECKS=0`
-    var sql = `DELETE FROM posts WHERE post_id='${id}'`;
-    await pool.query(unsetCheck);
-    await pool.execute(sql, [1, 1]);
-}
-
 // GET / route.
 // Gets all the posts from the backend and displays them.
 app.get('/', checkAuthenticated, (req, res) => {
-    getAllPosts().then(function([rows, fields]) {
+    db.getAllPosts().then(function([rows, fields]) {
         res.render('pages/index', {
             posts: rows,
             user: req.user,
@@ -170,7 +109,7 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
 // GET /admin route
 // Loads all the users from DB and Rrenders the admin dashboard
 app.get('/admin', checkIfAdminAndAuthenticated, (req, res) => {
-    getAllUsers().then(function([rows, fields]) {
+    db.getAllUsers().then(function([rows, fields]) {
         res.render('pages/admin', {
             is_admin: req.user.is_admin,
             username: req.user.username,
@@ -182,7 +121,7 @@ app.get('/admin', checkIfAdminAndAuthenticated, (req, res) => {
 // DELETE /admin route
 // Deletes a user from the DB and redirects to the admin page (refreshes)
 app.delete('/admin', (req, res) => {
-    deleteUserById(req.body.delete_id).then(function() {
+    db.deleteUserById(req.body.delete_id).then(function() {
         res.redirect('/admin');
     })
 })
@@ -238,30 +177,10 @@ app.delete('/logout', (req, res) => {
     res.redirect('/login')
 })
 
-// Checks if a postID is in the database
-// Returns an object representing a specific post or null
-async function getPostById(id) {
-    var sql = `SELECT * FROM posts WHERE post_id='${id}'`;
-    let [rows, fields] = await pool.execute(sql, [1, 1]);
-    let row = rows[0];
-    if (row) {
-        return {
-            post_id: row.post_id,
-            poster_id: row.poster_id,
-            upvotes_received: row.upvotes_received,
-            post_timestamp: row.post_timestamp,
-            post_title: row.post_title,
-            post_content: row.post_content
-        }
-    } else {
-        return null
-    }
-}
-
 // DELETE /post route
 // Attempts to delete a post from the database
 app.delete('/post', checkAuthenticated, async(req, res) => {
-    deletePostById(req.body.postId).then((result) => {
+    db.deletePostById(req.body.postId).then((result) => {
         res.json({
             success: true
         })    
@@ -270,12 +189,12 @@ app.delete('/post', checkAuthenticated, async(req, res) => {
 
 // Renders the single post page with "GET" method 
 app.get('/post/:postid', checkAuthenticated, async(req, res) => {
-    let post = await getPostById(req.params.postid)
+    let post = await db.getPostById(req.params.postid)
     let poster = await db.getUserById(post.poster_id)
-    let rows = await getCommentsByPostId(req.params.postid)
+    let rows = await db.getCommentsByPostId(req.params.postid)
     let isLiked = await checkLikedPost(req.user.user_id, req.params.postid)
-    let likedComments = await getLikedCommentsByPostId(req.params.postid, req.user.user_id)
-    let tags = await getPostTags(req.params.postid)
+    let likedComments = await db.getLikedCommentsByPostId(req.params.postid, req.user.user_id)
+    let tags = await db.getPostTags(req.params.postid)
     res.render('pages/post', {
         row: post,
         poster: poster,
@@ -290,7 +209,7 @@ app.get('/post/:postid', checkAuthenticated, async(req, res) => {
 
 // POST comment and re-direct to the single post page
 app.post('/comment/:postid', checkAuthenticated, async(req, res) => {
-    addNewComment(req.params.postid, req.user.user_id, req.body.commentContent, req.user.username)
+    db.addNewComment(req.params.postid, req.user.user_id, req.body.commentContent, req.user.username)
     res.redirect(`/post/${req.params.postid}`) // Redirect to the same page on success
 })
 
@@ -332,7 +251,7 @@ function addNewComment(post_id, commenter_id, commentContent, commenterUsername)
 // Attempts to create a new post with the given body parameters.
 // Returns a json containing the postId if successful
 app.post('/post', checkAuthenticated, async(req, res) => {
-    let postId = await addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username, req.body.postTags)
+    let postId = await db.addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username, req.body.postTags)
     if (!postId) {
         res.json({
             postId: null,
@@ -462,7 +381,7 @@ function checkAuthenticated(req, res, next) {
 // Gets the current user's info and renders it to the client
 app.get('/profile', checkAuthenticated, async (req, res) => {
     const user = await db.getUserById(req.user.user_id)
-    const posts = await getAllPostsByUserID(req.user.user_id)
+    const posts = await db.getAllPostsByUserID(req.user.user_id)
 
     res.render('pages/profile', {
         username: user.username,
@@ -477,7 +396,7 @@ app.get('/profile', checkAuthenticated, async (req, res) => {
 // Gets a user's info by userId and renders it to the client
 app.get('/profile/:id', checkAuthenticated, async (req, res) => {
     const user = await db.getUserById(req.params.id)
-    const posts = await getAllPostsByUserID(req.params.id)
+    const posts = await db.getAllPostsByUserID(req.params.id)
 
     res.render('pages/profile', {
         username: user.username,
@@ -502,25 +421,4 @@ function checkIfAdminAndAuthenticated(req, res, next) {
         return next() // If authenticated, redirect them to dashboard
     }
     return res.redirect('/') // if not authenticated, continue execution
-}
-
-// Gets all the users from the database
-// Returns an SQL object containing rows and fields
-async function getAllUsers() {
-    let [rows, fields] = await pool.execute('SELECT * FROM users', [1, 1]);
-    return [rows, fields];
-}
-
-// Gets all the posts from the database
-// Returns an SQL object containing rows and fields
-async function getAllPosts() {
-    let [rows, fields] = await pool.execute('SELECT * FROM posts', [1, 1]);
-    return [rows, fields];
-}
-
-// Gets all the posts from a particular user.
-// Returns an SQL object containing rows and fields
-async function getAllPostsByUserID(user_id) {
-    let [rows, fields] = await pool.execute(`SELECT * FROM posts WHERE poster_id='${user_id}'`, [1, 1]);
-    return rows; 
 }
