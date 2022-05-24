@@ -1,26 +1,44 @@
 if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config() //Loads in all the environment variables
+    require('dotenv').config() // Loads in all the environment variables
 }
 
-const express = require('express')
-const path = require('path')
-const mysql = require('mysql2/promise')
-const bcrypt = require('bcryptjs')
-const passport = require('passport')
-const flash = require('express-flash')
-const session = require('express-session')
-const methodOverride = require('method-override')
-const initializePassport = require('./passport-config')
-const bodyParser = require('body-parser')
-const res = require('express/lib/response')
+// Required imports handled by node
 
-// Initialize the passport
+// Express for routing
+const express = require('express')
+
+// MySQL package for handling MySQL
+const mysql = require('mysql2/promise')
+
+// Bcrypt for hashing passwords
+const bcrypt = require('bcryptjs')
+
+// Authentication middleware
+const passport = require('passport')
+
+// Flash for making flash warnings to indicate authentication failure
+const flash = require('express-flash')
+
+// Express-session for handling sessions
+const session = require('express-session')
+
+// Allows us to override DELETE method into POST method (easier to use)
+const methodOverride = require('method-override')
+
+// Initializes our passport configuration
+const initializePassport = require('./scripts/passport-config')
+
+// Allows us to parse the body of incoming POST requests
+const bodyParser = require('body-parser')
+
+// Initializes the passport object
 initializePassport(
     passport, // Passport object
     getUserByEmail, // A function that gets the user by email (unique identifier for user)
     getUserById // A function that gets the user by id (HIDDEN unique identifier)
 )
 
+// Initializes an express app at the PORT specified in the .env, or otherwise port 3000
 const app = express()
 const port = process.env.PORT || 3000
 
@@ -32,6 +50,7 @@ app.use(express.urlencoded({
     extended: false
 }))
 
+// Tells our app that some body requests may be in JSON format
 app.use(bodyParser.json());
 
 // Tells our app to use flash and session (these are helper modules for authentication) 
@@ -68,13 +87,14 @@ function addNewUser(username, email, encrypted_password, isAdmin) {
     pool.query(sql)
 }
 
+// Gets a tag by name, returns an object representing a row in the database
 async function getTag(tagName) {
     let sql = `SELECT * FROM tags WHERE tag_name='${tagName}';`
     let [rows, fields] = await pool.execute(sql, [1, 1])
     return rows[0]
 }
 
-// Adds a new tag to the database
+// Adds a new tag to the database, returns a Promise that resolves to an SQL query object
 async function addNewTag(tagName) {
     let sql = `INSERT INTO tags (tag_name) values ('${tagName}');`
     return await pool.query(sql)
@@ -106,11 +126,14 @@ async function addNewPost(posterId, postTitle, postContent, posterUsername, post
     return postId
 }
 
+// Adds a tag and post combination to the post_tags table in the database
 async function addTagToPost(tagId, postId) {
     let sql = `INSERT INTO post_tags (tag_id, post_id) values ('${tagId}', '${postId}')`
     pool.query(sql)
 }
 
+// Gets all the tags for a certain post, searched by postId
+// Returns all the rows that match
 async function getPostTags(postId) {
     let sql = `SELECT * from post_tags LEFT JOIN tags ON tags.tag_id=post_tags.tag_id WHERE post_tags.post_id='${postId}'`
     let [rows, fields] = await pool.execute(sql, [1, 1])
@@ -173,7 +196,8 @@ async function deletePostById(id) {
     await pool.execute(sql, [1, 1]);
 }
 
-// GET landing page. Gets all the posts from the backend and displays them.
+// GET / route.
+// Gets all the posts from the backend and displays them.
 app.get('/', checkAuthenticated, (req, res) => {
     getAllPosts().then(function([rows, fields]) {
         res.render('pages/index', {
@@ -183,19 +207,22 @@ app.get('/', checkAuthenticated, (req, res) => {
     })
 })
 
-// GET login page
+// GET /login route
+// Renders the login page
 app.get('/login', checkNotAuthenticated, (req, res) => {
     res.render('pages/login')
 })
 
-// POST login page
+// POST /login route
+// Attempts to authenticate the current user and redirects to landing page on success
 app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/login',
     failureFlash: true
 }))
 
-// GET admin dashboard page
+// GET /admin route
+// Loads all the users from DB and Rrenders the admin dashboard
 app.get('/admin', checkIfAdminAndAuthenticated, (req, res) => {
     getAllUsers().then(function([rows, fields]) {
         res.render('pages/admin', {
@@ -206,38 +233,47 @@ app.get('/admin', checkIfAdminAndAuthenticated, (req, res) => {
     })
 })
 
+// DELETE /admin route
+// Deletes a user from the DB and redirects to the admin page (refreshes)
 app.delete('/admin', (req, res) => {
     deleteUserById(req.body.delete_id).then(function() {
         res.redirect('/admin');
     })
 })
 
-// GET registration page
+// GET /registration route
+// Renders the registration page
 app.get('/register', checkNotAuthenticated, (req, res) => {
     res.render('pages/register');
 })
 
-// GET mission page
+// GET /mission route
+// Renders the mission page
 app.get('/mission', (req, res) => {
   res.render('pages/mission');
 })
 
-// GET team page
+// GET /team route
+// Renders the team page
 app.get('/team', (req, res) => {
   res.render('pages/team');
 })
 
-// GET site rules page
+// GET /siterules route
+// Renders the site rules page
 app.get('/siterules', (req, res) => {
   res.render('pages/siterules');
 })
 
-// GET contact page
+// GET /contact route
+// Renders the contact page
 app.get('/contact', (req, res) => {
   res.render('pages/contact');
 })
 
-// POST login page
+// POST login route
+// Attempts to create a user using the included email, username and password data
+// Redirects to login on success, or returns to registration page on failure
 app.post('/register', checkNotAuthenticated, async(req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(req.body.password, 10)
@@ -250,7 +286,7 @@ app.post('/register', checkNotAuthenticated, async(req, res) => {
     }
 })
 
-// Logout route. Can be hit using a POST
+// Logout route. Can be hit using a POST thanks to method override
 app.delete('/logout', (req, res) => {
     req.logOut() // This function is set up by passport automatically, clears session and logs user out
     res.redirect('/login')
@@ -276,6 +312,8 @@ async function getPostById(id) {
     }
 }
 
+// DELETE /post route
+// Attempts to delete a post from the database
 app.delete('/post', checkAuthenticated, async(req, res) => {
     deletePostById(req.body.postId).then((result) => {
         res.json({
@@ -344,8 +382,9 @@ function addNewComment(post_id, commenter_id, commentContent, commenterUsername)
     pool.query(sql);
 }
 
-
-// POST post page
+// POST /post route
+// Attempts to create a new post with the given body parameters.
+// Returns a json containing the postId if successful
 app.post('/post', checkAuthenticated, async(req, res) => {
     let postId = await addNewPost(req.user.user_id, req.body.postTitle, req.body.postContent, req.user.username, req.body.postTags)
     if (!postId) {
@@ -361,7 +400,9 @@ app.post('/post', checkAuthenticated, async(req, res) => {
     }
 })
 
+// POST /likepost route
 // A route that toggles a post like. Likes a post if it is not liked, unlikes it otherwise.
+// Returns a JSON response containing the status of the liked post
 app.post('/likepost', checkAuthenticated, async(req, res) => {
     try {
         await toggleLikePost(req.user.user_id, req.body.post_id).then((liked) => {
@@ -402,6 +443,7 @@ async function toggleLikePost(likerId, postId) {
 }
 
 // Queries the database to check if a post is liked or not, returns true if the post is liked
+// Returns true if a post is liked
 async function checkLikedPost(userId, postId) {
     var sql = `SELECT * FROM liked_posts WHERE post_id='${postId}' AND liker_id='${userId}'`;
     let [rows, fields] = await pool.execute(sql, [1, 1]);
@@ -409,7 +451,9 @@ async function checkLikedPost(userId, postId) {
     return row != null
 }
 
+// POST /likecomment route
 // A route that toggles a comment like. Likes a comment if it is not liked, unlikes it otherwise.
+// Returns a JSON response containing the status of the liked comment
 app.post('/likecomment', checkAuthenticated, async(req, res) => {
     try {
         await toggleLikeComment(req.body.liker_id, req.body.comment_id).then((liked) => {
@@ -450,6 +494,7 @@ async function toggleLikeComment(likerId, commentId) {
 }
 
 // Queries the database to check if a comment is liked or not, returns true if the comment is liked
+// Returns true if the comment is liked
 async function checkLikedComment(userId, commentId) {
     var sql = `SELECT * FROM liked_comments WHERE comment_id='${commentId}' AND liker_id='${userId}'`;
     let [rows, fields] = await pool.execute(sql, [1, 1]);
@@ -458,6 +503,7 @@ async function checkLikedComment(userId, commentId) {
 }
 
 // Middleware function to check if user is authenticated
+// Continues the execution of the functions if the user is authenticated, otherwise redirects to login
 function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next() //everything works, just execute the next function
@@ -465,6 +511,9 @@ function checkAuthenticated(req, res, next) {
     res.redirect('/login')
 }
 
+
+// GET /profile route
+// Gets the current user's info and renders it to the client
 app.get('/profile', checkAuthenticated, async (req, res) => {
     const user = await getUserById(req.user.user_id)
     const posts = await getAllPostsByUserID(req.user.user_id)
@@ -478,6 +527,8 @@ app.get('/profile', checkAuthenticated, async (req, res) => {
     });
 })
 
+// GET /profile route
+// Gets a user's info by userId and renders it to the client
 app.get('/profile/:id', checkAuthenticated, async (req, res) => {
     const user = await getUserById(req.params.id)
     const posts = await getAllPostsByUserID(req.params.id)
@@ -507,19 +558,22 @@ function checkIfAdminAndAuthenticated(req, res, next) {
     return res.redirect('/') // if not authenticated, continue execution
 }
 
-// Gets all the users from the database. Returns a weird SQL object thingy.
+// Gets all the users from the database
+// Returns an SQL object containing rows and fields
 async function getAllUsers() {
     let [rows, fields] = await pool.execute('SELECT * FROM users', [1, 1]);
     return [rows, fields];
 }
 
-// Gets all the posts from the database. Returns a weird SQL object thingy.
+// Gets all the posts from the database
+// Returns an SQL object containing rows and fields
 async function getAllPosts() {
     let [rows, fields] = await pool.execute('SELECT * FROM posts', [1, 1]);
     return [rows, fields];
 }
 
-// Gets all the posts from a particular user. Returns a weird SQL object thingy.
+// Gets all the posts from a particular user.
+// Returns an SQL object containing rows and fields
 async function getAllPostsByUserID(user_id) {
     let [rows, fields] = await pool.execute(`SELECT * FROM posts WHERE poster_id='${user_id}'`, [1, 1]);
     return rows; 
