@@ -3,6 +3,9 @@
 var express = require('express');
 var router = new express.Router();
 
+// Bcrypt for hashing passwords
+const bcrypt = require('bcryptjs')
+
 // Initialize the functions for managing data in our database
 // All our database operations are in data-manager.js
 // Database configuration files are in database.js

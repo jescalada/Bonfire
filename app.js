@@ -10,9 +10,6 @@ const express = require('express')
 // MySQL package for handling MySQL
 const mysql = require('mysql2/promise')
 
-// Bcrypt for hashing passwords
-const bcrypt = require('bcryptjs')
-
 // Authentication middleware
 const passport = require('passport')
 
