@@ -74,6 +74,10 @@ It has the following subfolders and files:
         
 ```
 
+## Build requirements
+1. Install Node v16.15
+2. Install npm v8.10
+
 ## Build
 1. Add a .env file with the variable SESSION_SECRET
 2. Execute the following commands in the directory where you want to build the project
@@ -81,6 +85,7 @@ It has the following subfolders and files:
 npm install
 npm run devStart
 ```
+3. Access the local build at localhost:3000
 
 ## Resources 
 - Logo made by Juan 
