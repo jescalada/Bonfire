@@ -88,10 +88,10 @@ npm run devStart
 - Site rules adapted from reddit.com 
 
 ## Contact 
-* [Andrew Anca - @my.bcit.ca]()
+* [Andrew Anca - aanca@my.bcit.ca](mailto:aanca@my.bcit.ca)
 * [Juan Escalada - jescalada@my.bcit.ca](mailto:jescalada@my.bcit.ca)
 * [Stefan Chen - zchen158@my.bcit.ca](mailto:zchen158@my.bcit.ca)
-* [Jacky Yau - @my.bcit.ca]()
+* [Jacky Yau - wyau5@my.bcit.ca](mailto:wyau5@my.bcit.ca)
 
 ## Acknowledgements 
 * <a href="https://ejs.co/">EJS</a>
