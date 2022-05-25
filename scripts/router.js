@@ -250,4 +250,9 @@ function checkAuthenticated(req, res, next) {
     res.redirect('/login')
 }
 
+// 404 route catch-all
+router.get('*', function(req, res){
+    res.status(404).render('pages/404');
+  });
+
 module.exports = router;
