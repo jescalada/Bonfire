@@ -7,9 +7,12 @@ Bonfire is an app for civil discussion of various topics.
 * [Website](#website)
 * [Technologies](#technologies)
 * [Contents](#content)
+* [Build requirements](#build-requirements)
+* [Build](#build)
+* [Features](#features)
 * [Resources](#resources)
-* [Contact](#contact)
 * [Acknowledgements](#acknowledgements)
+* [Contact](#contact)
 
 ## General Info
 Bonfire is an app for civil discussion of various topics.
@@ -87,19 +90,31 @@ npm run devStart
 ```
 3. Access the local build at localhost:3000
 
+## Features
+1. Registering user accounts
+2. Registering admin account (include admin after the @ during account creation, Ex: juan@admin.com)
+3. Logging into an account
+4. Viewing all posts
+5. Viewing post details
+6. Making posts
+7. Commenting on posts
+8. Liking posts and comments
+9. Viewing profiles
+10. Admin Functionalities: Dashboard, Post and User Moderation
+
 ## Resources 
 - Logo made by Juan 
 - Login image from [unsplash](https://unsplash.com/) (Free to use) 
 - Site rules adapted from reddit.com 
-
-## Contact 
-* [Andrew Anca - aanca@my.bcit.ca](mailto:aanca@my.bcit.ca)
-* [Juan Escalada - jescalada@my.bcit.ca](mailto:jescalada@my.bcit.ca)
-* [Stefan Chen - zchen158@my.bcit.ca](mailto:zchen158@my.bcit.ca)
-* [Jacky Yau - wyau5@my.bcit.ca](mailto:wyau5@my.bcit.ca)
 
 ## Acknowledgements 
 * <a href="https://ejs.co/">EJS</a>
 * <a href="https://www.npmjs.com/package/bcrypt">bcrypt</a>
 * <a href="https://getbootstrap.com/">Bootstrap</a>
 * <a href="https://www.passportjs.org/">Passport.js</a>
+
+## Contact 
+* [Andrew Anca - aanca@my.bcit.ca](mailto:aanca@my.bcit.ca)
+* [Juan Escalada - jescalada@my.bcit.ca](mailto:jescalada@my.bcit.ca)
+* [Stefan Chen - zchen158@my.bcit.ca](mailto:zchen158@my.bcit.ca)
+* [Jacky Yau - wyau5@my.bcit.ca](mailto:wyau5@my.bcit.ca)
