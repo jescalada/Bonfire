@@ -27,7 +27,7 @@ Technologies used for this project:
 * Node.js
 * Express.js
 * MySQL
-* AWS Redis (MySQL cloud solution)
+* AWS RDS (MySQL cloud solution)
 * Heroku
 * Embedded Javascript (EJS)
 * Bootstrap
